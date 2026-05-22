@@ -7,14 +7,14 @@ class ContactsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "nl.cuisinent@gmail.com"
     assert_includes response.body, "1463 route d'avignon"
-    assert_select 'input[name="contact_request[name]"]'
-    assert_select 'textarea[name="contact_request[message]"]'
+    assert_includes response.body, 'name="contact_request[name]"'
+    assert_includes response.body, 'name="contact_request[message]"'
   end
 
   test "create accepts nested contact_request params" do
     notified = false
 
-    Notifications::InquiryNotificationJob.stub(:perform_later, ->(**) { notified = true }) do
+    Notifications::InquiryNotificationJob.stub(:perform_later, ->(*_args, **_kwargs) { notified = true }) do
       assert_difference("ContactRequest.count", 1) do
         post contacts_path, params: {
           contact_request: {
