@@ -1,0 +1,10 @@
+<% content_for :page_title, "Editer #{@product.name}" %>
+
+<div class="admin-card">
+  <div class="admin-section-title">
+    <h2>Editer le produit</h2>
+    <%= link_to "Retour", admin_product_path(@product), class: "admin-pill-link" %>
+  </div>
+
+  <%= render "form", product: @product %>
+</div>

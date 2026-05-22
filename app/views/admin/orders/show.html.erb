@@ -1,0 +1,115 @@
+<% content_for :page_title, "Commande #{@order.order_number}" %>
+
+<div class="admin-grid">
+  <section class="admin-card">
+    <div class="admin-section-title">
+      <h2>Details commande</h2>
+      <%= link_to "Retour", admin_orders_path, class: "admin-pill-link" %>
+    </div>
+
+    <div class="admin-grid admin-form-grid">
+      <div>
+        <div class="admin-meta">Client</div>
+        <strong><%= @order.customer_email.presence || @order.user&.email || "N/A" %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Telephone</div>
+        <strong><%= @order.customer_phone.presence || "-" %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Service</div>
+        <strong><%= @order.service_mode.humanize %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Paiement</div>
+        <span class="status-chip <%= @order.payment_status %>"><%= @order.payment_status.humanize %></span>
+      </div>
+    </div>
+
+    <div style="margin-top: 1rem;">
+      <div class="admin-meta">Adresse livraison</div>
+      <p><%= @order.delivery_address.presence || "Aucune adresse" %></p>
+    </div>
+
+    <table class="admin-table" style="margin-top: .8rem;">
+      <thead>
+        <tr>
+          <th>Produit</th>
+          <th>Quantite</th>
+          <th>Prix unite</th>
+          <th>Total ligne</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @order.order_items.each do |item| %>
+          <tr>
+            <td><%= item.name %></td>
+            <td><%= item.quantity %></td>
+            <td><%= number_to_currency(item.unit_price_cents / 100.0, unit: "€", format: "%n %u") %></td>
+            <td><%= number_to_currency(item.line_total_cents / 100.0, unit: "€", format: "%n %u") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="admin-grid admin-form-grid" style="margin-top: .8rem;">
+      <div>
+        <div class="admin-meta">Sous-total</div>
+        <strong><%= number_to_currency(@order.subtotal_cents / 100.0, unit: "€", format: "%n %u") %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Livraison</div>
+        <strong><%= number_to_currency(@order.delivery_fee_cents / 100.0, unit: "€", format: "%n %u") %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Total</div>
+        <strong><%= number_to_currency(@order.total_cents / 100.0, unit: "€", format: "%n %u") %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Statut</div>
+        <span class="status-chip <%= @order.status %>"><%= @order.status.humanize %></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="admin-card">
+    <h2>Mettre a jour le statut</h2>
+    <%= form_with model: @order, url: status_admin_order_path(@order), method: :patch, class: "admin-form" do |f| %>
+      <div class="admin-field">
+        <%= f.label :status, "Nouveau statut" %>
+        <%= f.select :status, options_for_select(Order::STATUSES.map { |s| [s.humanize, s] }, @order.status), {}, class: "admin-input" %>
+      </div>
+      <div class="admin-field">
+        <%= f.label :reason, "Raison (obligatoire en cas d'annulation)" %>
+        <%= f.text_area :reason, rows: 3, class: "admin-input" %>
+      </div>
+      <%= f.submit "Enregistrer", class: "admin-btn" %>
+    <% end %>
+
+    <h3 style="margin-top: 1.3rem;">Paiements</h3>
+    <% if @order.payments.any? %>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Provider ID</th>
+            <th>Statut</th>
+            <th>Montant</th>
+            <th>Maj</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @order.payments.each do |payment| %>
+            <tr>
+              <td><%= payment.provider_payment_id.presence || "-" %></td>
+              <td><span class="status-chip <%= payment.status %>"><%= payment.status.humanize %></span></td>
+              <td><%= number_to_currency(payment.amount_cents / 100.0, unit: "€", format: "%n %u") %></td>
+              <td><%= l(payment.updated_at, format: :short) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="admin-meta">Aucun paiement enregistre pour cette commande.</p>
+    <% end %>
+  </section>
+</div>

@@ -1,0 +1,98 @@
+<% content_for :page_title, "Devis" %>
+
+<div class="admin-card">
+  <div class="admin-section-title">
+    <h2>Demandes de devis</h2>
+    <div class="admin-actions">
+      <%= link_to "Réinitialiser", admin_quotes_path, class: "admin-pill-link" %>
+    </div>
+  </div>
+
+  <%= form_with url: bulk_status_admin_quotes_path, method: :patch, local: true, id: "bulk-quotes-form", class: "admin-form admin-form-grid", style: "margin-bottom:1rem;" do %>
+    <div class="admin-field">
+      <label>Action en masse</label>
+      <%= select_tag "bulk[status]", options_for_select([["Choisir un statut", ""]] + Quote::STATUSES.map { |s| [s.humanize, s] }), class: "admin-input" %>
+    </div>
+    <div class="admin-actions">
+      <%= submit_tag "Appliquer aux devis sélectionnés", class: "admin-btn" %>
+    </div>
+  <% end %>
+
+  <%= form_with url: admin_quotes_path, method: :get, local: true, class: "admin-form admin-form-grid", style: "margin-bottom:1rem;" do %>
+    <div class="admin-field">
+      <label>Recherche</label>
+      <%= text_field_tag :q, @filters[:q], class: "admin-input", placeholder: "Email ou type d'événement" %>
+    </div>
+    <div class="admin-field">
+      <label>Statut</label>
+      <%= select_tag :status, options_for_select([["Tous", ""]] + Quote::STATUSES.map { |s| [s.humanize, s] }, @filters[:status]), class: "admin-input" %>
+    </div>
+    <div class="admin-field">
+      <label>Du</label>
+      <%= date_field_tag :date_from, @filters[:date_from], class: "admin-input" %>
+    </div>
+    <div class="admin-field">
+      <label>Au</label>
+      <%= date_field_tag :date_to, @filters[:date_to], class: "admin-input" %>
+    </div>
+    <div class="admin-actions">
+      <%= submit_tag "Filtrer", class: "admin-btn" %>
+    </div>
+  <% end %>
+
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th><%= link_to "Contact#{sort_indicator('email')}", admin_quotes_path(sort_params_for('email')), class: "admin-pill-link" %></th>
+        <th>Événement</th>
+        <th><%= link_to "Invités#{sort_indicator('guest_count')}", admin_quotes_path(sort_params_for('guest_count')), class: "admin-pill-link" %></th>
+        <th><%= link_to "Date#{sort_indicator('event_date')}", admin_quotes_path(sort_params_for('event_date')), class: "admin-pill-link" %></th>
+        <th><%= link_to "Statut#{sort_indicator('status')}", admin_quotes_path(sort_params_for('status')), class: "admin-pill-link" %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @quotes.each do |quote| %>
+        <tr>
+          <td><%= check_box_tag "quote_ids[]", quote.id, false, form: "bulk-quotes-form" %></td>
+          <td>
+            <strong><%= quote.email %></strong>
+            <div class="admin-meta"><%= quote.phone.presence || "Téléphone non renseigné" %></div>
+          </td>
+          <td><%= quote.event_type.presence || "Non précisé" %></td>
+          <td><%= quote.guest_count || "-" %></td>
+          <td><%= quote.event_date ? l(quote.event_date, format: :short) : "-" %></td>
+          <td><span class="status-chip <%= quote.status %>"><%= quote.status.humanize %></span></td>
+          <td>
+            <div class="admin-inline-actions">
+              <%= link_to "Ouvrir", admin_quote_path(quote), class: "admin-pill-link" %>
+              <% (Quote::STATUSES - [quote.status]).each do |next_status| %>
+                <%= button_to next_status.humanize,
+                              status_admin_quote_path(quote),
+                              method: :patch,
+                              params: { quote: { status: next_status } },
+                              class: "admin-pill-btn" %>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="admin-section-title" style="margin-top:1rem;">
+    <div class="admin-meta">
+      <%= @pagination[:total_count] %> résultat(s) · page <%= @pagination[:page] %>/<%= @pagination[:total_pages] %>
+    </div>
+    <div class="admin-actions">
+      <% query = request.query_parameters.except("page") %>
+      <% if @pagination[:page] > 1 %>
+        <%= link_to "Précédent", admin_quotes_path(query.merge(page: @pagination[:page] - 1)), class: "admin-pill-link" %>
+      <% end %>
+      <% if @pagination[:page] < @pagination[:total_pages] %>
+        <%= link_to "Suivant", admin_quotes_path(query.merge(page: @pagination[:page] + 1)), class: "admin-pill-link" %>
+      <% end %>
+    </div>
+  </div>
+</div>

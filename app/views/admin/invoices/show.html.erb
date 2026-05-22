@@ -1,0 +1,39 @@
+<% content_for :page_title, "Facture #{@invoice.invoice_number}" %>
+
+<div class="admin-card">
+  <div class="admin-section-title">
+    <h2>Detail facture</h2>
+    <%= link_to "Retour", admin_invoices_path, class: "admin-pill-link" %>
+  </div>
+
+  <div class="admin-grid admin-form-grid">
+    <div>
+      <div class="admin-meta">Numero</div>
+      <strong><%= @invoice.invoice_number %></strong>
+    </div>
+    <div>
+      <div class="admin-meta">Commande</div>
+      <strong><%= @invoice.order&.order_number || "-" %></strong>
+    </div>
+    <div>
+      <div class="admin-meta">Montant</div>
+      <strong><%= number_to_currency(@invoice.total_cents / 100.0, unit: "€", format: "%n %u") %></strong>
+    </div>
+    <div>
+      <div class="admin-meta">Statut</div>
+      <span class="status-chip <%= @invoice.status %>"><%= @invoice.status.humanize %></span>
+    </div>
+    <div>
+      <div class="admin-meta">Date emission</div>
+      <strong><%= l(@invoice.issued_at || @invoice.created_at, format: :short) %></strong>
+    </div>
+    <div>
+      <div class="admin-meta">PDF</div>
+      <% if @invoice.pdf_url.present? %>
+        <a href="<%= @invoice.pdf_url %>" target="_blank" rel="noreferrer" class="admin-pill-link">Telecharger</a>
+      <% else %>
+        <span class="admin-meta">Non genere</span>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,155 @@
+<div class="page-product-detail" data-controller="cart">
+  <div class="product-detail-container">
+
+    <div class="product-breadcrumb">
+      <%= link_to "← Carte", catalog_path, class: "breadcrumb-link" %>
+      <% if @product.category %>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-cat"><%= @product.category.name %></span>
+      <% end %>
+    </div>
+
+    <div class="product-detail-grid">
+
+      <!-- Image -->
+      <div class="product-detail-image">
+        <% if @product.image_url.present? %>
+          <img src="<%= @product.image_url %>" alt="<%= @product.name %>" class="product-img-large">
+        <% else %>
+          <div class="product-img-placeholder">
+            <span>🍔</span>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Infos / commande -->
+      <div class="product-detail-info">
+        <% if @product.category %>
+          <span class="product-category-badge"><%= @product.category.name %></span>
+        <% end %>
+
+        <h1 class="product-title"><%= @product.name %></h1>
+
+        <% if @product.description.present? %>
+          <p class="product-description"><%= @product.description %></p>
+        <% end %>
+
+        <div class="product-price-block">
+          <span class="product-price-main"><%= number_to_currency(@product.price_cents / 100.0, unit: "€", format: "%n %u") %></span>
+        </div>
+
+        <!-- Options -->
+        <% if @product.product_options.any? %>
+          <div class="product-options">
+            <h4>Options</h4>
+            <% @product.product_options.each do |option| %>
+              <label class="option-row">
+                <input type="checkbox" name="option_<%= option.id %>" value="<%= option.id %>">
+                <span class="option-name"><%= option.name %></span>
+                <% if option.price_delta_cents > 0 %>
+                  <span class="option-price">+ <%= number_to_currency(option.price_delta_cents / 100.0, unit: "€", format: "%n %u") %></span>
+                <% end %>
+              </label>
+            <% end %>
+          </div>
+        <% end %>
+
+        <!-- Ajout au panier -->
+        <% if @product.active && @product.stock_quantity > 0 %>
+          <%= form_with url: cart_items_path, method: :post, class: "add-to-cart-form", local: true do |f| %>
+            <%= f.hidden_field :product_id, value: @product.id %>
+            <div class="quantity-selector">
+              <label>Quantité</label>
+              <div class="quantity-controls">
+                <button type="button" class="qty-btn" data-action="click->cart#decrease">−</button>
+                <%= f.number_field :quantity, value: 1, min: 1, max: 10, class: "qty-input", data: { cart_target: "quantity" } %>
+                <button type="button" class="qty-btn" data-action="click->cart#increase">+</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Instructions spéciales (optionnel)</label>
+              <%= f.text_area :special_instructions, placeholder: "Sans oignons, sauce séparée...", rows: 2, class: "form-textarea" %>
+            </div>
+
+            <%= f.submit "Ajouter au panier", class: "btn-primary btn-large btn-block" %>
+          <% end %>
+        <% else %>
+          <div class="out-of-stock-badge">Indisponible actuellement</div>
+        <% end %>
+
+      </div>
+    </div>
+
+    <!-- Avis produit -->
+    <% if @reviews&.any? %>
+      <section class="product-reviews">
+        <h3>Avis clients (<%= @reviews.count %>)</h3>
+        <div class="reviews-grid">
+          <% @reviews.each do |review| %>
+            <div class="review-card-small">
+              <div class="review-stars">
+                <%= "★" * review.rating %><%= "☆" * (5 - review.rating) %>
+              </div>
+              <p class="review-comment"><%= review.comment %></p>
+              <span class="review-date"><%= l(review.created_at, format: :short) %></span>
+            </div>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+
+    <% if @related_products.any? %>
+      <section class="product-reviews">
+        <h3>À découvrir aussi</h3>
+        <div class="reviews-grid">
+          <% @related_products.each do |related_product| %>
+            <%= render "catalog/product_card", product: related_product %>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+
+  </div>
+</div>
+
+<style>
+.page-product-detail { min-height: 80vh; padding: 2rem 0; background: #111; }
+.product-detail-container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+.product-breadcrumb { margin-bottom: 2rem; font-size: .9rem; }
+.breadcrumb-link { color: #b23a30; text-decoration: none; }
+.breadcrumb-link:hover { text-decoration: underline; }
+.breadcrumb-sep { color: #444; margin: 0 .5rem; }
+.breadcrumb-cat { color: #888; }
+.product-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 4rem; }
+@media(max-width:768px) { .product-detail-grid { grid-template-columns: 1fr; } }
+.product-img-large { width: 100%; border-radius: 12px; object-fit: cover; max-height: 420px; }
+.product-img-placeholder { aspect-ratio: 4/3; background: #1a1a1a; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 5rem; border: 1px solid #222; }
+.product-category-badge { display: inline-block; background: #b23a3022; color: #b23a30; border: 1px solid #b23a3044; border-radius: 20px; padding: .3rem .9rem; font-size: .8rem; margin-bottom: 1rem; }
+.product-title { font-size: 2rem; font-weight: 700; color: #f0ece4; margin-bottom: 1rem; }
+.product-description { color: #aaa; line-height: 1.7; margin-bottom: 1.5rem; }
+.product-price-main { font-size: 2rem; font-weight: 700; color: #b23a30; }
+.product-price-block { margin-bottom: 1.5rem; }
+.product-options { margin-bottom: 1.5rem; }
+.product-options h4 { color: #f0ece4; margin-bottom: .8rem; }
+.option-row { display: flex; align-items: center; gap: .8rem; padding: .6rem 0; border-bottom: 1px solid #222; cursor: pointer; }
+.option-name { flex: 1; color: #ccc; }
+.option-price { color: #b23a30; font-size: .9rem; }
+.add-to-cart-form { display: flex; flex-direction: column; gap: 1rem; }
+.quantity-selector label { color: #f0ece4; font-size: .9rem; }
+.quantity-controls { display: flex; align-items: center; gap: .5rem; }
+.qty-btn { width: 36px; height: 36px; background: #222; border: 1px solid #333; color: #f0ece4; border-radius: 6px; cursor: pointer; font-size: 1.2rem; }
+.qty-btn:hover { background: #b23a30; color: #111; }
+.qty-input { width: 60px; text-align: center; background: #1a1a1a; border: 1px solid #333; color: #f0ece4; padding: .5rem; border-radius: 6px; }
+.form-textarea { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #f0ece4; border-radius: 8px; padding: .8rem; resize: vertical; }
+.btn-large { padding: 1rem 2rem; font-size: 1.1rem; }
+.btn-block { width: 100%; }
+.out-of-stock-badge { background: #2a1a1a; color: #ef4444; border: 1px solid #ef444433; padding: 1rem; border-radius: 8px; text-align: center; }
+.product-reviews { border-top: 1px solid #222; padding-top: 2rem; }
+.product-reviews h3 { color: #f0ece4; margin-bottom: 1.5rem; }
+.reviews-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.review-card-small { background: #181818; border: 1px solid #222; border-radius: 10px; padding: 1.2rem; }
+.review-stars { color: #b23a30; font-size: 1rem; margin-bottom: .5rem; }
+.review-comment { color: #ccc; font-size: .95rem; line-height: 1.5; }
+.review-date { color: #555; font-size: .8rem; }
+</style>

@@ -1,0 +1,71 @@
+<div class="page-account">
+  <section class="section-header">
+    <h1>Mes Adresses</h1>
+  </section>
+
+  <div class="account-container">
+    <aside class="account-menu">
+      <nav class="menu-nav">
+        <a href="<%= me_path %>" class="menu-item">👤 Profil</a>
+        <a href="<%= me_orders_path %>" class="menu-item">📦 Mes commandes</a>
+        <a href="<%= me_addresses_path %>" class="menu-item active">📍 Adresses</a>
+        <a href="<%= me_preferences_path %>" class="menu-item">⚙️ Préférences</a>
+        <a href="<%= me_invoices_path %>" class="menu-item">📄 Factures</a>
+        <hr>
+        <%= link_to "Déconnexion", logout_path, data: { turbo_method: :post }, class: "menu-item menu-danger" %>
+      </nav>
+    </aside>
+
+    <div class="account-main">
+      <div class="section-actions">
+        <%= link_to "+ Ajouter une adresse", me_new_address_path, class: "btn-primary btn-sm" %>
+      </div>
+
+      <% if @addresses.any? %>
+        <div class="addresses-grid">
+          <% @addresses.each do |address| %>
+            <div class="address-card <%= 'address-default' if address.is_default %>">
+              <% if address.is_default %>
+                <span class="default-badge">Par défaut</span>
+              <% end %>
+              <div class="address-type-badge"><%= address.address_type.humanize %></div>
+              <p class="address-line"><strong><%= address.full_name %></strong></p>
+              <p class="address-line"><%= address.street %></p>
+              <p class="address-line"><%= address.postal_code %> <%= address.city %></p>
+              <p class="address-line"><%= address.country %></p>
+              <p class="address-line"><%= address.phone %></p>
+              <div class="address-actions">
+                <%= link_to "Modifier", me_edit_address_path(address), class: "link-amber" %>
+                <%= link_to "Supprimer", me_delete_address_path(address), data: { turbo_method: :delete, turbo_confirm: "Supprimer cette adresse ?" }, class: "link-danger" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-state">
+          <span class="empty-icon">📍</span>
+          <h3>Aucune adresse enregistrée</h3>
+          <p>Ajoutez une adresse pour faciliter vos prochaines commandes.</p>
+          <%= link_to "+ Ajouter une adresse", me_new_address_path, class: "btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+.section-actions { display: flex; justify-content: flex-end; margin-bottom: 1.5rem; }
+.addresses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.address-card { background: #181818; border: 1px solid #222; border-radius: 12px; padding: 1.5rem; position: relative; }
+.address-default { border-color: #b23a3044; }
+.default-badge { position: absolute; top: 1rem; right: 1rem; background: #b23a3022; color: #b23a30; border: 1px solid #b23a3044; border-radius: 20px; font-size: .75rem; padding: .2rem .6rem; }
+.address-type-badge { color: #888; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .75rem; }
+.address-line { color: #ccc; margin-bottom: .25rem; font-size: .95rem; }
+.address-actions { margin-top: 1rem; display: flex; gap: 1rem; }
+.link-amber { color: #b23a30; text-decoration: none; font-size: .9rem; }
+.link-danger { color: #ef4444; text-decoration: none; font-size: .9rem; }
+.empty-state { text-align: center; padding: 4rem 2rem; color: #888; }
+.empty-icon { font-size: 3rem; display: block; margin-bottom: 1rem; }
+.empty-state h3 { color: #f0ece4; margin-bottom: .5rem; }
+.empty-state p { margin-bottom: 1.5rem; }
+</style>

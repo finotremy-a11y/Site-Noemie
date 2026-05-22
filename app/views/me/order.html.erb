@@ -1,0 +1,76 @@
+<div class="page-account">
+  <section class="section-header">
+    <h1>Commande <%= @order.order_number %></h1>
+  </section>
+
+  <div class="account-container">
+    <aside class="account-menu">
+      <nav class="menu-nav">
+        <a href="<%= me_path %>" class="menu-item">👤 Profil</a>
+        <a href="<%= me_orders_path %>" class="menu-item active">📦 Mes commandes</a>
+        <a href="<%= me_addresses_path %>" class="menu-item">📍 Adresses</a>
+        <a href="<%= me_preferences_path %>" class="menu-item">⚙️ Préférences</a>
+        <a href="<%= me_invoices_path %>" class="menu-item">📄 Factures</a>
+        <hr>
+        <%= link_to "Déconnexion", logout_path, data: { turbo_method: :post }, class: "menu-item menu-danger" %>
+      </nav>
+    </aside>
+
+    <div class="account-main">
+      <div class="account-card">
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Statut</span>
+            <span class="value"><%= @order.status.humanize %></span>
+          </div>
+          <div class="info-item">
+            <span class="label">Paiement</span>
+            <span class="value"><%= @order.payment_status.humanize %></span>
+          </div>
+          <div class="info-item">
+            <span class="label">Mode</span>
+            <span class="value"><%= @order.service_mode.humanize %></span>
+          </div>
+          <div class="info-item">
+            <span class="label">Total</span>
+            <span class="value amber"><%= number_to_currency(@order.total_cents / 100.0, unit: "€", format: "%n %u") %></span>
+          </div>
+        </div>
+
+        <% if @order.status == "pending_payment" && %w[pending failed].include?(@order.payment_status) %>
+          <div class="card-actions" style="margin-top: 1.5rem;">
+            <%= button_to "Réessayer le paiement", order_retry_payment_path(@order), method: :post, class: "btn-small" %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="account-card">
+        <h3>Articles</h3>
+        <div class="orders-list">
+          <% @order.order_items.each do |item| %>
+            <div class="order-item">
+              <div class="order-info">
+                <strong><%= item.quantity %> × <%= item.name %></strong>
+                <% if item.options.present? %>
+                  <span class="order-date"><%= item.options.to_json %></span>
+                <% end %>
+              </div>
+              <div class="order-details">
+                <span class="order-total"><%= number_to_currency(item.line_total_cents / 100.0, unit: "€", format: "%n %u") %></span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <% if @order.invoice.present? %>
+        <div class="account-card">
+          <div class="card-header">
+            <h3>Facture liée</h3>
+            <%= link_to "Voir la facture", me_invoice_path(@order.invoice), class: "btn-small" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

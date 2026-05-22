@@ -1,0 +1,78 @@
+<%= form_with model: [ :admin, product ], class: "admin-form" do |f| %>
+  <% if product.errors.any? %>
+    <div class="admin-flash">
+      <strong>Veuillez corriger les erreurs :</strong>
+      <ul>
+        <% product.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="admin-grid admin-form-grid">
+    <div class="admin-field">
+      <%= f.label :name, "Nom" %>
+      <%= f.text_field :name, class: "admin-input", required: true %>
+    </div>
+
+    <div class="admin-field">
+      <%= f.label :category_id, "Categorie" %>
+      <%= f.select :category_id, options_from_collection_for_select(@categories, :id, :name, product.category_id), {}, class: "admin-input", required: true %>
+    </div>
+
+    <div class="admin-field">
+      <%= f.label :price_cents, "Prix (centimes)" %>
+      <%= f.number_field :price_cents, min: 0, step: 1, class: "admin-input", required: true %>
+    </div>
+
+    <div class="admin-field">
+      <%= f.label :currency, "Devise" %>
+      <%= f.text_field :currency, class: "admin-input", required: true %>
+    </div>
+
+    <div class="admin-field">
+      <%= f.label :stock_quantity, "Stock" %>
+      <%= f.number_field :stock_quantity, min: 0, step: 1, class: "admin-input", required: true %>
+    </div>
+
+    <div class="admin-field">
+      <%= f.label :image_url, "Image URL" %>
+      <%= f.url_field :image_url, class: "admin-input" %>
+    </div>
+
+    <div class="admin-field">
+      <%= f.label :seasonal_start_date, "Debut saison" %>
+      <%= f.date_field :seasonal_start_date, class: "admin-input" %>
+    </div>
+
+    <div class="admin-field">
+      <%= f.label :seasonal_end_date, "Fin saison" %>
+      <%= f.date_field :seasonal_end_date, class: "admin-input" %>
+    </div>
+  </div>
+
+  <div class="admin-field" style="margin-top: .8rem;">
+    <%= f.label :description, "Description" %>
+    <%= f.text_area :description, rows: 5, class: "admin-input" %>
+  </div>
+
+  <div class="admin-field">
+    <%= label_tag :"product[badges_text]", "Badges (separes par une virgule)" %>
+    <%= text_field_tag :"product[badges_text]", product.badges.to_a.join(", "), class: "admin-input" %>
+  </div>
+
+  <div class="admin-field admin-checkbox">
+    <%= f.check_box :active %>
+    <%= f.label :active, "Produit actif" %>
+  </div>
+
+  <div class="admin-actions" style="margin-top: 1rem;">
+    <%= f.submit(product.persisted? ? "Mettre a jour" : "Creer", class: "admin-btn") %>
+    <% if product.persisted? %>
+      <%= link_to "Annuler", admin_product_path(product), class: "admin-pill-link" %>
+    <% else %>
+      <%= link_to "Annuler", admin_products_path, class: "admin-pill-link" %>
+    <% end %>
+  </div>
+<% end %>

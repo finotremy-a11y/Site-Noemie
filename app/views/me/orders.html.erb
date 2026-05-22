@@ -1,0 +1,75 @@
+<div class="page-account">
+  <section class="section-header">
+    <h1>Mes Commandes</h1>
+  </section>
+
+  <div class="account-container">
+    <aside class="account-menu">
+      <nav class="menu-nav">
+        <a href="<%= me_path %>" class="menu-item">👤 Profil</a>
+        <a href="<%= me_orders_path %>" class="menu-item active">📦 Mes commandes</a>
+        <a href="<%= me_addresses_path %>" class="menu-item">📍 Adresses</a>
+        <a href="<%= me_preferences_path %>" class="menu-item">⚙️ Préférences</a>
+        <a href="<%= me_invoices_path %>" class="menu-item">📄 Factures</a>
+        <hr>
+        <%= link_to "Déconnexion", logout_path, data: { turbo_method: :post }, class: "menu-item menu-danger" %>
+      </nav>
+    </aside>
+
+    <div class="account-main">
+      <% if @orders.any? %>
+        <div class="orders-list">
+          <% @orders.each do |order| %>
+            <div class="order-row">
+              <div class="order-row-number">
+                <span class="label">Commande</span>
+                <span class="value amber"><%= order.order_number %></span>
+              </div>
+              <div class="order-row-date">
+                <span class="label">Date</span>
+                <span class="value"><%= l(order.created_at, format: :short) %></span>
+              </div>
+              <div class="order-row-status">
+                <span class="status-badge status-<%= order.status %>"><%= order.status.humanize %></span>
+              </div>
+              <div class="order-row-total">
+                <span class="amber bold"><%= number_to_currency(order.total_cents / 100.0, unit: "€", format: "%n %u") %></span>
+              </div>
+              <div>
+                <%= link_to "Détails", me_order_path(order), class: "btn-small" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-state">
+          <span class="empty-icon">📦</span>
+          <h3>Aucune commande pour l'instant</h3>
+          <p>Découvrez notre carte et passez votre première commande.</p>
+          <%= link_to "Voir la carte", catalog_path, class: "btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+.orders-list { display: flex; flex-direction: column; gap: .75rem; }
+.order-row { background: #181818; border: 1px solid #222; border-radius: 10px; padding: 1.2rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.order-row-number .label, .order-row-date .label { color: #666; font-size: .75rem; display: block; margin-bottom: .2rem; }
+.order-row-number .value, .order-row-date .value { color: #f0ece4; font-size: .95rem; }
+.amber { color: #b23a30; }
+.bold { font-weight: 700; }
+.status-badge { padding: .3rem .8rem; border-radius: 20px; font-size: .78rem; }
+.status-confirmed { background: #22c55e22; color: #22c55e; border: 1px solid #22c55e44; }
+.status-pending_payment { background: #b23a3022; color: #b23a30; border: 1px solid #b23a3044; }
+.status-preparing { background: #3b82f622; color: #3b82f6; border: 1px solid #3b82f644; }
+.status-ready { background: #a855f722; color: #a855f7; border: 1px solid #a855f744; }
+.status-completed { background: #22c55e22; color: #22c55e; border: 1px solid #22c55e44; }
+.status-cancelled { background: #ef444422; color: #ef4444; border: 1px solid #ef444444; }
+.status-draft { background: #44444422; color: #888; border: 1px solid #44444444; }
+.empty-state { text-align: center; padding: 4rem 2rem; color: #888; }
+.empty-icon { font-size: 3rem; display: block; margin-bottom: 1rem; }
+.empty-state h3 { color: #f0ece4; margin-bottom: .5rem; }
+.empty-state p { margin-bottom: 1.5rem; }
+</style>

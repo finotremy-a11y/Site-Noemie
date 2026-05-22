@@ -1,0 +1,17 @@
+/.bundle
+/.env
+/.env.*
+!/\.env.example
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+!/tmp/pids/.keep
+!/tmp/storage/.keep
+/storage/*
+!/storage/.keep
+/config/master.key
+/node_modules
+/public/assets
+.byebug_history
+coverage/

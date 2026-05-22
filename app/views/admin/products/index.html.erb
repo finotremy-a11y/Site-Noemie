@@ -1,0 +1,94 @@
+<% content_for :page_title, "Produits" %>
+
+<div class="admin-card">
+  <div class="admin-section-title">
+    <h2>Catalogue produits</h2>
+    <div class="admin-actions">
+      <%= link_to "Export CSV", api_v1_admin_exports_products_path(request.query_parameters), class: "admin-pill-link" %>
+      <%= link_to "Nouveau produit", new_admin_product_path, class: "admin-pill-link" %>
+    </div>
+  </div>
+
+  <%= form_with url: admin_products_path, method: :get, local: true, class: "admin-form admin-form-grid", style: "margin-bottom:1rem;" do %>
+    <div class="admin-field">
+      <label>Recherche</label>
+      <%= text_field_tag :q, @filters[:q], class: "admin-input", placeholder: "Nom ou description" %>
+    </div>
+    <div class="admin-field">
+      <label>Catégorie</label>
+      <%= select_tag :category_id, options_for_select([["Toutes", ""]] + @categories.map { |c| [c.name, c.id] }, @filters[:category_id]), class: "admin-input" %>
+    </div>
+    <div class="admin-field">
+      <label>Disponibilité</label>
+      <%= select_tag :active, options_for_select([["Tous", ""], ["Actif", "true"], ["Inactif", "false"]], @filters[:active]), class: "admin-input" %>
+    </div>
+    <div class="admin-field admin-checkbox">
+      <%= check_box_tag :low_stock, "1", @filters[:low_stock] %>
+      <label>Stock faible (<= 5)</label>
+    </div>
+    <div class="admin-actions">
+      <%= submit_tag "Filtrer", class: "admin-btn" %>
+      <%= link_to "Réinitialiser", admin_products_path, class: "admin-pill-link" %>
+    </div>
+  <% end %>
+
+  <%= form_with url: bulk_update_admin_products_path(request.query_parameters.except("page")), method: :patch, local: true do %>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th><%= link_to "Produit#{sort_indicator('name')}", admin_products_path(sort_params_for('name')), class: "admin-pill-link" %></th>
+          <th>Catégorie</th>
+          <th><%= link_to "Prix#{sort_indicator('price_cents')}", admin_products_path(sort_params_for('price_cents')), class: "admin-pill-link" %></th>
+          <th><%= link_to "Stock#{sort_indicator('stock_quantity')}", admin_products_path(sort_params_for('stock_quantity')), class: "admin-pill-link" %></th>
+          <th><%= link_to "Statut#{sort_indicator('active')}", admin_products_path(sort_params_for('active')), class: "admin-pill-link" %></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="7">
+            <div class="admin-inline-actions">
+              <%= select_tag "bulk[action]", options_for_select([["Action", ""], ["Activer", "activate"], ["Désactiver", "deactivate"]]), class: "admin-input", style: "width: 180px;" %>
+              <%= submit_tag "Appliquer", class: "admin-pill-btn" %>
+            </div>
+          </td>
+        </tr>
+        <% @products.each do |product| %>
+          <tr>
+            <td><%= check_box_tag "product_ids[]", product.id, false %></td>
+            <td>
+              <strong><%= product.name %></strong>
+              <div class="admin-meta"><%= truncate(product.description, length: 70) %></div>
+            </td>
+            <td><%= product.category&.name || "Sans catégorie" %></td>
+            <td><%= number_to_currency(product.price_cents / 100.0, unit: "€", format: "%n %u") %></td>
+            <td><%= product.stock_quantity %></td>
+            <td><span class="status-chip <%= product.available? ? 'confirmed' : 'cancelled' %>"><%= product.available? ? 'Disponible' : 'Indisponible' %></span></td>
+            <td>
+              <div class="admin-inline-actions">
+                <%= link_to "Voir", admin_product_path(product), class: "admin-pill-link" %>
+                <%= link_to "Editer", edit_admin_product_path(product), class: "admin-pill-link" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+
+  <div class="admin-section-title" style="margin-top:1rem;">
+    <div class="admin-meta">
+      <%= @pagination[:total_count] %> résultat(s) · page <%= @pagination[:page] %>/<%= @pagination[:total_pages] %>
+    </div>
+    <div class="admin-actions">
+      <% query = request.query_parameters.except("page") %>
+      <% if @pagination[:page] > 1 %>
+        <%= link_to "Précédent", admin_products_path(query.merge(page: @pagination[:page] - 1)), class: "admin-pill-link" %>
+      <% end %>
+      <% if @pagination[:page] < @pagination[:total_pages] %>
+        <%= link_to "Suivant", admin_products_path(query.merge(page: @pagination[:page] + 1)), class: "admin-pill-link" %>
+      <% end %>
+    </div>
+  </div>
+</div>

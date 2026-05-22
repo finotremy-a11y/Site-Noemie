@@ -1,0 +1,197 @@
+<% content_for :page_title, "Vue d'ensemble — aujourd'hui" %>
+
+<div class="style-label">Page — Admin Dashboard</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-header"><span class="kpi-icon">📦</span><span class="kpi-trend trend-up"><%= @summary.dig(:operations, :pending_orders).to_i.positive? ? "actif" : "stable" %></span></div>
+    <div class="kpi-value"><%= @orders_today %></div>
+    <div class="kpi-label">Commandes du jour</div>
+    <div class="kpi-sub"><%= @summary.dig(:operations, :pending_orders).to_i %> en attente · <%= @summary.dig(:operations, :preparing_orders).to_i %> en prépa</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-header"><span class="kpi-icon">💰</span><span class="kpi-trend trend-up">CA</span></div>
+    <div class="kpi-value"><%= number_to_currency(@revenue_today_cents / 100.0, unit: "€", format: "%n %u") %></div>
+    <div class="kpi-label">Chiffre d'affaires du jour</div>
+    <div class="kpi-sub">Panier moyen : <%= number_to_currency(@avg_basket_cents / 100.0, unit: "€", format: "%n %u") %></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-header"><span class="kpi-icon">🎪</span><span class="kpi-trend trend-up"><%= @pending_quotes.size %></span></div>
+    <div class="kpi-value"><%= @pending_quotes.size %></div>
+    <div class="kpi-label">Devis en attente</div>
+    <div class="kpi-sub">Nouveaux devis clients</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-header"><span class="kpi-icon">⭐</span><span class="kpi-trend trend-up"><%= @pending_reviews.size %></span></div>
+    <div class="kpi-value"><%= @pending_reviews.size %></div>
+    <div class="kpi-label">Avis à modérer</div>
+    <div class="kpi-sub">Modération en attente</div>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📦 Commandes <div class="live-dot" style="margin-left:6px;"></div></span>
+      <%= link_to "Voir tout →", admin_orders_path, class: "card-action" %>
+    </div>
+    <div class="filter-tabs">
+      <%= link_to "Toutes (#{@recent_orders.size})", admin_dashboard_path, class: "filter-tab active" %>
+      <% pv = @recent_orders.count { |o| o.status == "pending_validation" } %>
+      <% pp = @recent_orders.count { |o| o.status == "pending_payment" } %>
+      <% pr = @recent_orders.count { |o| o.status == "preparing" } %>
+      <% if pv > 0 %><%= link_to "🟡 Validation (#{pv})", admin_orders_path(status: "pending_validation"), class: "filter-tab" %><% end %>
+      <% if pp > 0 %><%= link_to "⏳ Paiement (#{pp})", admin_orders_path(status: "pending_payment"), class: "filter-tab" %><% end %>
+      <% if pr > 0 %><%= link_to "🔵 Préparation (#{pr})", admin_orders_path(status: "preparing"), class: "filter-tab" %><% end %>
+    </div>
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>Commande</th>
+          <th>Client</th>
+          <th>Total</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @recent_orders.each do |order| %>
+          <tr>
+            <td><span class="order-id"><%= order.order_number %></span><br><span style="font-size:.72rem;color:#888;"><%= l(order.created_at, format: :short) %></span></td>
+            <td class="order-client"><%= truncate(order.customer_email.presence || order.user&.email || "N/A", length: 22) %></td>
+            <td class="order-amount"><%= number_to_currency(order.total_cents / 100.0, unit: "€", format: "%n %u") %></td>
+            <td>
+              <span class="status-pill pill-<%= order.status %>"><%= order.status.humanize %></span>
+            </td>
+            <td>
+              <div class="action-btns">
+                <% if order.status == "pending_validation" %>
+                  <%= button_to "Accepter", status_admin_order_path(order), method: :patch, params: { order: { status: "confirmed", reason: "Validation admin" } }, class: "btn-sm btn-sm-primary" %>
+                  <%= button_to "Refuser", status_admin_order_path(order), method: :patch, params: { order: { status: "cancelled", reason: "Refus admin" } }, class: "btn-sm btn-sm-danger" %>
+                <% elsif order.status == "preparing" %>
+                  <%= button_to "Marquer prêt", status_admin_order_path(order), method: :patch, params: { order: { status: "ready" } }, class: "btn-sm btn-sm-primary" %>
+                <% elsif order.status == "ready" %>
+                  <%= button_to "Confirmer livré", status_admin_order_path(order), method: :patch, params: { order: { status: "completed" } }, class: "btn-sm btn-sm-primary" %>
+                <% else %>
+                  <%= link_to "Ouvrir", admin_order_path(order), class: "btn-sm btn-sm-outline" %>
+                <% end %>
+                <%= link_to "🗒", admin_order_path(order), class: "btn-sm btn-sm-outline" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:16px;">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">💰 CA — 7 derniers jours</span>
+      </div>
+      <div class="ca-chart">
+        <div class="ca-total"><%= number_to_currency(@revenue_today_cents / 100.0, unit: "€", format: "%n %u") %></div>
+        <div class="ca-sub">aujourd'hui</div>
+        <% max_rev = @daily_revenue_7d.map { |d| d[:revenue_cents] }.max.to_f; max_rev = 1 if max_rev.zero? %>
+        <div class="ca-bars">
+          <% @daily_revenue_7d.each do |day| %>
+            <div class="bar <%= "today" if day[:today] %>" style="height:<%= [(day[:revenue_cents].to_f / max_rev * 100).round, 4].max %>%"></div>
+          <% end %>
+        </div>
+        <div class="bar-labels">
+          <% @daily_revenue_7d.each do |day| %>
+            <span class="bar-label <%= "today" if day[:today] %>"><%= day[:today] ? "Auj." : day[:label] %></span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🎪 Devis en attente</span>
+        <%= link_to "Voir tout →", admin_quotes_path, class: "card-action" %>
+      </div>
+      <% if @pending_quotes.any? %>
+        <% @pending_quotes.each do |quote| %>
+          <div class="devis-card">
+            <div class="devis-header">
+              <span class="devis-id">#DV-<%= quote.id %></span>
+              <span class="devis-status ds-new">Nouvelle</span>
+            </div>
+            <div class="devis-name"><%= quote.email %></div>
+            <div class="devis-meta"><%= quote.event_type.presence || "Événement" %> · <%= quote.guest_count || "?" %> pers.</div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="devis-card"><div class="devis-meta">Aucun devis en attente.</div></div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="three-col">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">🍔 Produits</span>
+      <%= link_to "+ Nouveau", new_admin_product_path, class: "btn-sm btn-sm-primary" %>
+    </div>
+    <div class="products-list">
+      <% @low_stock_products.first(5).each do |product| %>
+        <div class="product-row">
+          <div class="product-thumb">🍔</div>
+          <div class="product-info">
+            <div class="product-name"><%= truncate(product.name, length: 24) %></div>
+            <div class="product-cat"><%= product.category&.name || "Sans catégorie" %></div>
+          </div>
+          <div class="product-price"><%= number_to_currency(product.price_cents / 100.0, unit: "€", format: "%n %u") %></div>
+          <div class="product-avail"><span class="<%= product.available? ? "avail-on" : "avail-off" %>">● <%= product.available? ? "Dispo" : "Indispo" %></span></div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">⭐ Avis à modérer</span>
+      <%= link_to "Tout voir →", admin_reviews_path, class: "card-action" %>
+    </div>
+    <div style="padding:16px 20px; display:flex; flex-direction:column; gap:14px;">
+      <% if @pending_reviews.any? %>
+        <% @pending_reviews.first(2).each do |review| %>
+          <div style="border:1px solid #b23a3025; background:#b23a3010; border-radius:12px; padding:14px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span style="font-size:.75rem; font-weight:800; color:#444;">#REV-<%= review.id %> · En attente</span>
+              <span style="color:#b23a30; font-size:.9rem;"><%= "★" * review.rating.to_i %></span>
+            </div>
+            <div style="font-size:.83rem; color:#888; margin-bottom:10px;">"<%= truncate(review.comment, length: 90) %>"</div>
+            <div style="display:flex; gap:6px;">
+              <%= button_to "✓ Approuver", status_admin_review_path(review), method: :patch, params: { review: { status: "approved" } }, class: "btn-sm", style: "background:#22c55e20;color:#22c55e;border:1px solid #22c55e30;" %>
+              <%= button_to "✗ Rejeter", status_admin_review_path(review), method: :patch, params: { review: { status: "rejected" } }, class: "btn-sm btn-sm-danger" %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="devis-meta">Aucun avis en attente.</div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">🧾 Factures récentes</span>
+      <%= link_to "Tout voir →", admin_invoices_path, class: "card-action" %>
+    </div>
+    <% if @recent_invoices.any? %>
+      <% @recent_invoices.each do |invoice| %>
+        <div class="invoice-row">
+          <span class="invoice-num">#F-<%= invoice.id %></span>
+          <span class="invoice-client"><%= truncate(invoice.order&.customer_email.presence || "—", length: 20) %></span>
+          <span class="invoice-amount"><%= number_to_currency(invoice.total_cents.to_i / 100.0, unit: "€", format: "%n %u") %></span>
+          <%= link_to "📥", admin_invoice_path(invoice), class: "btn-sm btn-sm-outline" %>
+        </div>
+      <% end %>
+    <% else %>
+      <div style="padding:16px 20px; color:#555;">Aucune facture récente.</div>
+    <% end %>
+  </div>
+</div>

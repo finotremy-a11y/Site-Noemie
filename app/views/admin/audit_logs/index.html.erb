@@ -1,0 +1,74 @@
+<% content_for :page_title, "Audit" %>
+
+<div class="admin-card">
+  <div class="admin-section-title">
+    <h2>Journal d'audit</h2>
+  </div>
+
+  <%= form_with url: admin_audit_logs_path, method: :get, local: true, class: "admin-form admin-form-grid", style: "margin-bottom:1rem;" do %>
+    <div class="admin-field">
+      <label>Recherche</label>
+      <%= text_field_tag :q, @filters[:q], class: "admin-input", placeholder: "request_id ou resource_id" %>
+    </div>
+    <div class="admin-field">
+      <label>Action</label>
+      <%= select_tag :action_name_filter, options_for_select([["Toutes", ""]] + AuditLog::ACTIONS.map { |a| [a.humanize, a] }, @filters[:action]), class: "admin-input" %>
+    </div>
+    <div class="admin-field">
+      <label>Ressource</label>
+      <%= text_field_tag :resource_type, @filters[:resource_type], class: "admin-input", placeholder: "Order, Quote, Review..." %>
+    </div>
+    <div class="admin-field">
+      <label>Du</label>
+      <%= date_field_tag :date_from, @filters[:date_from], class: "admin-input" %>
+    </div>
+    <div class="admin-field">
+      <label>Au</label>
+      <%= date_field_tag :date_to, @filters[:date_to], class: "admin-input" %>
+    </div>
+    <div class="admin-actions">
+      <%= submit_tag "Filtrer", class: "admin-btn" %>
+      <%= link_to "Réinitialiser", admin_audit_logs_path, class: "admin-pill-link" %>
+    </div>
+  <% end %>
+
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th><%= link_to "Date#{sort_indicator('created_at')}", admin_audit_logs_path(sort_params_for('created_at')), class: "admin-pill-link" %></th>
+        <th><%= link_to "Action#{sort_indicator('action')}", admin_audit_logs_path(sort_params_for('action')), class: "admin-pill-link" %></th>
+        <th><%= link_to "Ressource#{sort_indicator('resource_type')}", admin_audit_logs_path(sort_params_for('resource_type')), class: "admin-pill-link" %></th>
+        <th>Utilisateur</th>
+        <th>Données</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @audit_logs.each do |log| %>
+        <tr>
+          <td><%= l(log.created_at, format: :short) %></td>
+          <td><span class="status-chip"><%= log.display_action %></span></td>
+          <td><%= "#{log.resource_type} ##{log.resource_id}" %></td>
+          <td><%= log.user&.email || "Système" %></td>
+          <td><%= truncate(log.metadata.to_json, length: 120) %></td>
+          <td><%= link_to "Voir", admin_audit_log_path(log), class: "admin-pill-link" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="admin-section-title" style="margin-top:1rem;">
+    <div class="admin-meta">
+      <%= @pagination[:total_count] %> résultat(s) · page <%= @pagination[:page] %>/<%= @pagination[:total_pages] %>
+    </div>
+    <div class="admin-actions">
+      <% query = request.query_parameters.except("page") %>
+      <% if @pagination[:page] > 1 %>
+        <%= link_to "Précédent", admin_audit_logs_path(query.merge(page: @pagination[:page] - 1)), class: "admin-pill-link" %>
+      <% end %>
+      <% if @pagination[:page] < @pagination[:total_pages] %>
+        <%= link_to "Suivant", admin_audit_logs_path(query.merge(page: @pagination[:page] + 1)), class: "admin-pill-link" %>
+      <% end %>
+    </div>
+  </div>
+</div>

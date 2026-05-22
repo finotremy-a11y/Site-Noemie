@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Confirmation commande</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; color: #222; }
+    .email-wrapper { max-width: 600px; margin: 0 auto; }
+    .email-header { background: #111; color: #f0ece4; padding: 32px 40px; border-radius: 12px 12px 0 0; text-align: center; }
+    .brand { font-size: 1.6rem; font-weight: 700; color: #b23a30; letter-spacing: .05em; }
+    .brand span { color: #f0ece4; }
+    .email-body { background: #fff; padding: 40px; border-left: 1px solid #e5e5e5; border-right: 1px solid #e5e5e5; }
+    .greeting { font-size: 1.1rem; margin-bottom: 1rem; }
+    .highlight { color: #b23a30; font-weight: 700; }
+    .order-box { background: #f9f9f9; border: 1px solid #e5e5e5; border-radius: 10px; padding: 24px; margin: 24px 0; }
+    .order-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: .95rem; }
+    .order-row:last-child { border-bottom: none; }
+    .order-row .key { color: #666; }
+    .order-row .val { font-weight: 600; }
+    .order-items { margin: 24px 0; }
+    .order-items h4 { color: #111; margin-bottom: 12px; font-size: 1rem; }
+    .item-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: .9rem; color: #444; border-bottom: 1px solid #f0f0f0; }
+    .total-row { display: flex; justify-content: space-between; padding: 12px 0; font-weight: 700; font-size: 1.05rem; margin-top: 8px; }
+    .total-row .val { color: #b23a30; }
+    .cta { text-align: center; margin: 32px 0; }
+    .btn { background: #111; color: #f0ece4; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; }
+    .email-footer { background: #111; color: #666; padding: 24px 40px; border-radius: 0 0 12px 12px; text-align: center; font-size: .85rem; }
+    .email-footer a { color: #b23a30; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-header">
+      <div class="brand">N<span>&</span>L <span>Cuisinent</span></div>
+      <p style="margin-top:8px; color:#aaa; font-size:.95rem;">Votre commande est confirmée</p>
+    </div>
+
+    <div class="email-body">
+      <p class="greeting">
+        Bonjour <strong><%= [@customer.first_name, @customer.last_name].compact.join(" ").presence || @customer.email.split("@").first.capitalize %></strong>,
+      </p>
+      <p>Merci pour votre commande ! Nous l'avons bien reçue et allons la préparer dans les meilleurs délais.</p>
+
+      <div class="order-box">
+        <div class="order-row">
+          <span class="key">Numéro de commande</span>
+          <span class="val highlight"><%= @order.order_number %></span>
+        </div>
+        <div class="order-row">
+          <span class="key">Date</span>
+          <span class="val"><%= @order.created_at.strftime("%d/%m/%Y à %H:%M") %></span>
+        </div>
+        <div class="order-row">
+          <span class="key">Mode de service</span>
+          <span class="val"><%= @order.service_mode == "delivery" ? "Livraison" : "Retrait sur place" %></span>
+        </div>
+        <div class="order-row">
+          <span class="key">Statut</span>
+          <span class="val">Confirméé</span>
+        </div>
+      </div>
+
+      <% if @order.order_items.any? %>
+        <div class="order-items">
+          <h4>Détail de la commande</h4>
+          <% @order.order_items.each do |item| %>
+            <div class="item-row">
+              <span><%= item.quantity %> × <%= item.name %></span>
+              <span><%= number_to_currency(item.line_total_cents / 100.0, unit: "€", format: "%n %u") %></span>
+            </div>
+          <% end %>
+          <% if @order.delivery_fee_cents > 0 %>
+            <div class="item-row">
+              <span>Frais de livraison</span>
+              <span><%= number_to_currency(@order.delivery_fee_cents / 100.0, unit: "€", format: "%n %u") %></span>
+            </div>
+          <% end %>
+          <div class="total-row">
+            <span>Total</span>
+            <span class="val"><%= number_to_currency(@order.total_cents / 100.0, unit: "€", format: "%n %u") %></span>
+          </div>
+        </div>
+      <% end %>
+
+      <p style="color:#666; font-size:.9rem;">Vous recevrez une notification dès que votre commande sera en préparation.</p>
+    </div>
+
+    <div class="email-footer">
+      <p>N&L Cuisinent &mdash; <a href="#">nlcuisinent.fr</a></p>
+      <p style="margin-top:6px;">Des questions ? Contactez-nous à <a href="mailto:contact@nlcuisinent.fr">contact@nlcuisinent.fr</a></p>
+    </div>
+  </div>
+</body>
+</html>
+

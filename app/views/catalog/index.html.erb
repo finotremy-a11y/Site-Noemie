@@ -1,0 +1,83 @@
+<div class="page-catalog" data-controller="catalog">
+  <section class="catalog-header">
+    <h1>Notre Carte</h1>
+    <p>Découvrez nos burgers premium et nos spécialités</p>
+    <div class="catalog-header-actions">
+      <a href="<%= cart_path %>" class="btn-primary">Voir mon panier</a>
+      <a href="<%= checkout_path %>" class="btn-outline">Commander</a>
+    </div>
+  </section>
+
+  <div class="catalog-container">
+    <aside class="catalog-filters">
+      <h3>Filtres</h3>
+      
+      <div class="filter-group">
+        <label for="filter-category">Catégorie</label>
+        <select id="filter-category" data-catalog-target="categoryFilter" data-action="change->catalog#filterByCategory">
+          <option value="">Toutes les catégories</option>
+          <% @categories&.each do |cat| %>
+            <option value="<%= cat.id %>" <%= "selected" if params[:category_id].to_s == cat.id.to_s %>><%= cat.name %></option>
+          <% end %>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-search">Rechercher</label>
+        <input 
+          type="text" 
+          id="filter-search" 
+          value="<%= params[:search].to_s %>"
+          placeholder="Burger, frites..." 
+          data-catalog-target="searchFilter"
+          data-action="change->catalog#filterBySearch keydown.enter->catalog#filterBySearch"
+        >
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-price">Gamme de prix</label>
+        <input type="range" id="filter-price" min="0" max="50" value="<%= (params[:max_price].presence || 50).to_i %>" data-catalog-target="priceFilter" data-action="input->catalog#filterByPrice">
+        <span id="price-display">0€ - <%= (params[:max_price].presence || 50).to_i %>€</span>
+      </div>
+
+      <button type="button" class="btn-secondary btn-block" data-action="catalog#resetFilters">Réinitialiser</button>
+    </aside>
+
+    <div class="catalog-main">
+      <div class="products-grid" id="products-container" data-catalog-target="productsContainer">
+        <% if @products&.any? %>
+          <% @products.each do |product| %>
+            <%= render "catalog/product_card", product: product %>
+          <% end %>
+        <% else %>
+          <div class="empty-state">
+            <p>Aucun produit disponible pour le moment.</p>
+          </div>
+        <% end %>
+      </div>
+
+      <% if @total_pages && @total_pages > 1 %>
+        <div class="pagination">
+          <% if @page && @page > 1 %>
+            <a href="?page=1" class="btn-pagination">« Première</a>
+            <a href="?page=<%= @page - 1 %>" class="btn-pagination">‹ Précédente</a>
+          <% end %>
+
+          <% (1..@total_pages).each do |p| %>
+            <% if p == @page %>
+              <span class="pagination-current"><%= p %></span>
+            <% else %>
+              <a href="?page=<%= p %>" class="btn-pagination"><%= p %></a>
+            <% end %>
+          <% end %>
+
+          <% if @page && @page < @total_pages %>
+            <a href="?page=<%= @page + 1 %>" class="btn-pagination">Suivante ›</a>
+            <a href="?page=<%= @total_pages %>" class="btn-pagination">Dernière »</a>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+

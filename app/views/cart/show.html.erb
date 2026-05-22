@@ -1,0 +1,101 @@
+<div class="page-cart">
+  <section class="section-header">
+    <h1>Mon Panier</h1>
+    <p>Vérifiez la composition de votre commande</p>
+  </section>
+
+  <div class="cart-container">
+    <div class="cart-items">
+      <% if @cart_items&.any? %>
+        <div class="items-list">
+          <% @cart_items.each do |item| %>
+            <div class="cart-item" data-item-id="<%= item.id %>">
+              <div class="item-image">
+                <% if item.product.image_url %>
+                  <img src="<%= item.product.image_url %>" alt="<%= item.product.name %>">
+                <% else %>
+                  <div class="image-placeholder">📦</div>
+                <% end %>
+              </div>
+
+              <div class="item-details">
+                <h4><%= item.product.name %></h4>
+                <% if item.special_instructions %>
+                  <p class="special-instructions">📝 <%= item.special_instructions %></p>
+                <% end %>
+              </div>
+
+              <div class="item-quantity">
+                  <%= button_to "−", cart_item_path(item), method: :patch,
+                        params: { quantity: item.quantity - 1 },
+                        class: "qty-btn",
+                        form: { style: "display:inline" } %>
+                  <span class="qty-display"><%= item.quantity %></span>
+                  <%= button_to "+", cart_item_path(item), method: :patch,
+                        params: { quantity: item.quantity + 1 },
+                        class: "qty-btn",
+                        form: { style: "display:inline" } %>
+              </div>
+
+                <div class="item-price">
+                  <span class="total-price"><%= number_with_precision(item.total_price, precision: 2) %> €</span>
+                </div>
+
+                <%= button_to "🗑️", cart_item_path(item), method: :delete,
+                      data: { turbo_confirm: "Supprimer cet article ?" },
+                    class: "btn-remove",
+                    form: { style: "display:contents" } %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-cart">
+          <p class="empty-icon">🛒</p>
+          <h3>Votre panier est vide</h3>
+          <p>Découvrez notre carte et commencez votre commande</p>
+          <a href="<%= catalog_path %>" class="btn-primary">Voir la carte</a>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @cart_items&.any? %>
+      <aside class="cart-summary">
+        <div class="summary-section">
+          <h3>Résumé de la commande</h3>
+
+          <div class="summary-line">
+            <span>Sous-total HT</span>
+            <span class="price">€<%= number_with_precision(@cart.subtotal, precision: 2) %></span>
+          </div>
+
+          <div class="summary-line">
+            <span>TVA (20%)</span>
+            <span class="price">€<%= number_with_precision(@cart.vat, precision: 2) %></span>
+          </div>
+
+          <div class="summary-line total">
+            <span>Total TTC</span>
+            <span class="price">€<%= number_with_precision(@cart.total, precision: 2) %></span>
+          </div>
+        </div>
+
+        <div class="summary-actions">
+          <a href="<%= catalog_path %>" class="btn-secondary btn-block">
+            ⬅️ Continuer vos achats
+          </a>
+
+          <%= link_to "💳 Finaliser ma commande", checkout_path, class: "btn-primary btn-block" %>
+        </div>
+
+        <div class="summary-info">
+          <p class="info-text">
+            ✓ Préparation début immédiat<br>
+            ✓ Retraite ou livraison<br>
+            ✓ Paiement sécurisé Stripe
+          </p>
+        </div>
+      </aside>
+    <% end %>
+  </div>
+</div>
+

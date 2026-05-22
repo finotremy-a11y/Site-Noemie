@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maquette — Catalogue produits</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #111; color: #f0ece4; }
+
+    /* NAV */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 60px; background: rgba(17,17,17,.95);
+      border-bottom: 1px solid #2a2a2a; position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-size: 1.4rem; font-weight: 900; color: #f5a623; }
+    .logo span { color: #f0ece4; }
+    .nav-right { display: flex; gap: 12px; align-items: center; }
+    .btn-accent { padding: 8px 18px; background: #f5a623; color: #111; border: none; border-radius: 8px; font-weight: 700; font-size: .85rem; cursor: pointer; }
+    .cart-pill { display: flex; align-items: center; gap: 7px; background: #f5a62315; border-radius: 20px; padding: 7px 16px; font-size: .85rem; font-weight: 700; cursor: pointer; border: 1px solid #f5a62340; color: #f5a623; }
+    .cart-count { background: #f5a623; color: #111; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: .72rem; }
+
+    /* LAYOUT */
+    .page-layout { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 60px); }
+
+    /* SIDEBAR */
+    .sidebar {
+      background: #151515; border-right: 1px solid #222;
+      padding: 28px 24px; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto;
+    }
+    .sidebar-section { margin-bottom: 28px; }
+    .sidebar-title { font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #444; margin-bottom: 12px; }
+    .cat-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .cat-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 12px; border-radius: 8px; cursor: pointer; font-size: .9rem; font-weight: 500; color: #888;
+    }
+    .cat-item:hover { background: #1e1e1e; color: #f0ece4; }
+    .cat-item.active { background: #f5a62315; color: #f5a623; font-weight: 700; }
+    .cat-count { font-size: .75rem; color: #444; background: #1e1e1e; border-radius: 10px; padding: 2px 8px; }
+    .cat-item.active .cat-count { background: #f5a62325; color: #f5a623; }
+
+    .filter-group { display: flex; flex-direction: column; gap: 8px; }
+    .filter-row { display: flex; align-items: center; gap: 10px; font-size: .88rem; color: #777; cursor: pointer; }
+    .filter-row input[type=checkbox] { accent-color: #f5a623; width: 16px; height: 16px; }
+    .price-range { display: flex; flex-direction: column; gap: 8px; }
+    .price-inputs { display: flex; gap: 8px; align-items: center; }
+    .price-inputs input { width: 80px; padding: 6px 10px; border: 1px solid #2a2a2a; border-radius: 6px; font-size: .82rem; background: #1e1e1e; color: #f0ece4; }
+    .price-sep { color: #444; font-size: .85rem; }
+    .apply-btn { padding: 8px 16px; background: #f5a623; color: #111; border: none; border-radius: 6px; font-size: .8rem; font-weight: 700; cursor: pointer; width: 100%; margin-top: 6px; }
+
+    /* MAIN */
+    .main-content { padding: 32px 36px; }
+    .main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .main-header h1 { font-size: 1.6rem; font-weight: 900; letter-spacing: -1px; }
+    .main-header h1 span { color: #f5a623; }
+    .main-controls { display: flex; align-items: center; gap: 12px; }
+    .search-box {
+      display: flex; align-items: center; gap: 8px;
+      background: #181818; border: 1.5px solid #2a2a2a; border-radius: 8px;
+      padding: 8px 14px; width: 240px;
+    }
+    .search-box input { border: none; outline: none; font-size: .9rem; background: transparent; width: 100%; color: #f0ece4; }
+    .sort-select { padding: 8px 14px; border: 1.5px solid #2a2a2a; border-radius: 8px; font-size: .85rem; background: #181818; color: #aaa; cursor: pointer; }
+    .view-toggle { display: flex; gap: 2px; }
+    .view-btn { padding: 8px 10px; background: #181818; border: 1.5px solid #2a2a2a; cursor: pointer; font-size: 1rem; color: #888; }
+    .view-btn:first-child { border-radius: 8px 0 0 8px; }
+    .view-btn:last-child { border-radius: 0 8px 8px 0; }
+    .view-btn.active { background: #f5a623; border-color: #f5a623; color: #111; }
+
+    /* ACTIVE FILTERS */
+    .active-filters { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-chip { display: flex; align-items: center; gap: 5px; background: #f5a62315; border: 1px solid #f5a62335; border-radius: 20px; padding: 4px 12px; font-size: .78rem; color: #f5a623; font-weight: 600; }
+    .filter-chip button { background: none; border: none; cursor: pointer; color: #f5a623; font-size: .85rem; padding: 0 2px; }
+    .results-count { font-size: .85rem; color: #555; }
+
+    /* PRODUCTS GRID */
+    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .product-card {
+      background: #181818; border: 1px solid #222; border-radius: 16px;
+      overflow: hidden; transition: transform .15s, border-color .2s; position: relative;
+    }
+    .product-card:hover { transform: translateY(-3px); border-color: #f5a623; }
+    .product-img {
+      height: 180px; background: linear-gradient(135deg, #2a1500, #1a0e00);
+      display: flex; align-items: center; justify-content: center; font-size: 3.8rem;
+      position: relative;
+    }
+    .product-unavailable { opacity: .4; }
+    .unavailable-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,.55);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 800; color: #666; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .product-body { padding: 16px; }
+    .product-tags { display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
+    .tag { font-size: .68rem; padding: 3px 9px; border-radius: 20px; font-weight: 700; }
+    .tag-bestseller { background: #f5a62320; color: #f5a623; }
+    .tag-new { background: #22c55e20; color: #22c55e; }
+    .tag-veggie { background: #22c55e20; color: #22c55e; }
+    .tag-spicy { background: #ef444420; color: #ef4444; }
+    .tag-unavailable { background: #2a2a2a; color: #555; }
+    .product-name { font-size: .95rem; font-weight: 800; margin-bottom: 3px; color: #f0ece4; }
+    .product-desc { font-size: .78rem; color: #666; margin-bottom: 12px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .product-footer { display: flex; align-items: center; justify-content: space-between; }
+    .product-price { font-size: 1.15rem; font-weight: 900; color: #f5a623; }
+    .add-btn { padding: 7px 14px; background: #f5a623; color: #111; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: .78rem; transition: all .15s; }
+    .add-btn:hover { background: #e09515; }
+    .add-btn:disabled { background: #222; color: #444; cursor: not-allowed; }
+    .allergens { font-size: .7rem; color: #444; margin-top: 8px; }
+
+    /* FICHE PRODUIT SIDE PANEL */
+    .product-detail-panel {
+      position: fixed; right: 0; top: 60px; bottom: 0; width: 400px;
+      background: #181818; border-left: 1px solid #222;
+      box-shadow: -8px 0 48px rgba(0,0,0,.5); z-index: 50;
+      padding: 32px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;
+    }
+    .panel-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #555; align-self: flex-end; }
+    .panel-close:hover { color: #f0ece4; }
+    .panel-img { height: 200px; background: linear-gradient(135deg, #2a1500, #1a0e00); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 5rem; }
+    .panel-name { font-size: 1.4rem; font-weight: 900; color: #f0ece4; }
+    .panel-desc { font-size: .88rem; color: #777; line-height: 1.7; }
+    .panel-price { font-size: 1.6rem; font-weight: 900; color: #f5a623; }
+    .option-group { border: 1px solid #2a2a2a; border-radius: 12px; overflow: hidden; }
+    .option-header { padding: 12px 16px; background: #141414; font-size: .82rem; font-weight: 800; display: flex; gap: 8px; align-items: center; color: #f0ece4; }
+    .option-required { background: #f5a62320; color: #f5a623; padding: 2px 8px; border-radius: 20px; font-size: .68rem; }
+    .option-item { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #222; font-size: .88rem; cursor: pointer; color: #ccc; }
+    .option-item:hover { background: #1e1e1e; }
+    .option-item input { accent-color: #f5a623; }
+    .option-extra { color: #f5a623; font-size: .82rem; font-weight: 700; }
+    .qty-row { display: flex; align-items: center; gap: 12px; }
+    .qty-btn { width: 36px; height: 36px; border: 1.5px solid #2a2a2a; border-radius: 8px; background: #111; color: #f0ece4; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .qty-val { font-size: 1.1rem; font-weight: 800; min-width: 28px; text-align: center; }
+    .add-to-cart-btn { width: 100%; padding: 16px; background: #f5a623; color: #111; border: none; border-radius: 12px; font-size: 1rem; font-weight: 800; cursor: pointer; }
+    .add-to-cart-btn:hover { background: #e09515; }
+
+    /* PAGINATION */
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 36px; }
+    .page-btn { width: 36px; height: 36px; border: 1.5px solid #2a2a2a; border-radius: 8px; background: #181818; color: #888; cursor: pointer; font-size: .9rem; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+    .page-btn.active { background: #f5a623; border-color: #f5a623; color: #111; }
+
+    .style-label {
+      position: fixed; bottom: 20px; left: 20px;
+      background: #f5a623; color: #111; padding: 10px 18px;
+      border-radius: 8px; font-weight: 800; font-size: .85rem; z-index: 200;
+      box-shadow: 0 4px 20px #f5a62350;
+    }
+  </style>
+</head>
+<body>
+
+<div class="style-label">Page — Catalogue produits</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Nömi<span>'s</span></div>
+  <div class="nav-right">
+    <button class="btn-accent">Mon compte</button>
+    <div class="cart-pill">🛒 Panier <span class="cart-count">3</span></div>
+  </div>
+</nav>
+
+<div class="page-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Catégories</div>
+      <ul class="cat-list">
+        <li class="cat-item">Tout <span class="cat-count">24</span></li>
+        <li class="cat-item active">🍔 Burgers <span class="cat-count">12</span></li>
+        <li class="cat-item">🍟 Accompagnements <span class="cat-count">6</span></li>
+        <li class="cat-item">🥤 Boissons <span class="cat-count">4</span></li>
+        <li class="cat-item">🍮 Desserts <span class="cat-count">2</span></li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Régimes</div>
+      <div class="filter-group">
+        <label class="filter-row"><input type="checkbox" checked /> 🌿 Végétarien</label>
+        <label class="filter-row"><input type="checkbox" /> 🌱 Vegan</label>
+        <label class="filter-row"><input type="checkbox" /> 🌾 Sans gluten</label>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Disponibilité</div>
+      <div class="filter-group">
+        <label class="filter-row"><input type="checkbox" checked /> Disponibles</label>
+        <label class="filter-row"><input type="checkbox" /> Tous (incl. indisponibles)</label>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Prix</div>
+      <div class="price-range">
+        <div class="price-inputs">
+          <input type="text" value="0 €" />
+          <span class="price-sep">–</span>
+          <input type="text" value="20 €" />
+        </div>
+        <button class="apply-btn">Appliquer</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <div class="main-header">
+      <div>
+        <h1>Nos <span>Burgers</span></h1>
+      </div>
+      <div class="main-controls">
+        <div class="search-box">
+          🔍 <input type="text" placeholder="Rechercher un produit..." />
+        </div>
+        <select class="sort-select">
+          <option>Trier : Popularité</option>
+          <option>Prix croissant</option>
+          <option>Prix décroissant</option>
+          <option>Nouveautés</option>
+        </select>
+        <div class="view-toggle">
+          <button class="view-btn active">▦</button>
+          <button class="view-btn">☰</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="active-filters">
+      <span class="results-count">12 résultats</span>
+      <span class="filter-chip">🌿 Végétarien <button>×</button></span>
+      <span class="filter-chip">Disponibles <button>×</button></span>
+    </div>
+
+    <div class="products-grid">
+
+      <!-- Produit 1 -->
+      <div class="product-card">
+        <div class="product-img">🍔</div>
+        <div class="product-body">
+          <div class="product-tags"><span class="tag tag-bestseller">⭐ Best-seller</span></div>
+          <div class="product-name">The Classic Nömi</div>
+          <div class="product-desc">Bœuf charolais, cheddar affiné, oignons confits, sauce maison</div>
+          <div class="allergens">⚠️ Gluten, lait</div>
+          <div class="product-footer">
+            <span class="product-price">12,90 €</span>
+            <button class="add-btn">+ Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Produit 2 -->
+      <div class="product-card">
+        <div class="product-img">🥗</div>
+        <div class="product-body">
+          <div class="product-tags"><span class="tag tag-new">🌱 Nouveauté</span><span class="tag tag-veggie">Veggie</span></div>
+          <div class="product-name">Le Green Beast</div>
+          <div class="product-desc">Steak de champignons, guacamole, pickles, brioche végane</div>
+          <div class="allergens">⚠️ Gluten</div>
+          <div class="product-footer">
+            <span class="product-price">13,50 €</span>
+            <button class="add-btn">+ Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Produit 3 -->
+      <div class="product-card">
+        <div class="product-img">🌶</div>
+        <div class="product-body">
+          <div class="product-tags"><span class="tag tag-spicy">🌶 Épicé</span></div>
+          <div class="product-name">Double Inferno</div>
+          <div class="product-desc">Double steak, jalapeños, sauce sriracha, bacon croustillant</div>
+          <div class="allergens">⚠️ Gluten, lait</div>
+          <div class="product-footer">
+            <span class="product-price">15,90 €</span>
+            <button class="add-btn">+ Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Produit 4 - rupture -->
+      <div class="product-card product-unavailable">
+        <div class="product-img">
+          🍔
+          <div class="unavailable-overlay">Indisponible</div>
+        </div>
+        <div class="product-body">
+          <div class="product-tags"><span class="tag tag-unavailable">Rupture de stock</span></div>
+          <div class="product-name">Smoky BBQ</div>
+          <div class="product-desc">Steak, sauce BBQ fumée, cheddar, pickles</div>
+          <div class="product-footer">
+            <span class="product-price">13,90 €</span>
+            <button class="add-btn" disabled>Indisponible</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Produit 5 -->
+      <div class="product-card">
+        <div class="product-img">🧀</div>
+        <div class="product-body">
+          <div class="product-tags"><span class="tag tag-bestseller">⭐ Populaire</span></div>
+          <div class="product-name">Le Fromager</div>
+          <div class="product-desc">Triple fromage, oignon grillé, moutarde à l'ancienne</div>
+          <div class="allergens">⚠️ Gluten, lait</div>
+          <div class="product-footer">
+            <span class="product-price">14,50 €</span>
+            <button class="add-btn">+ Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Produit 6 -->
+      <div class="product-card">
+        <div class="product-img">🥓</div>
+        <div class="product-body">
+          <div class="product-tags"></div>
+          <div class="product-name">Bacon Lover</div>
+          <div class="product-desc">Steak, double bacon croustillant, cheddar fondu, salade</div>
+          <div class="allergens">⚠️ Gluten, lait</div>
+          <div class="product-footer">
+            <span class="product-price">14,90 €</span>
+            <button class="add-btn">+ Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="pagination">
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">›</button>
+    </div>
+  </main>
+
+</div>
+
+<!-- FICHE PRODUIT PANEL (panneau latéral) -->
+<aside class="product-detail-panel">
+  <button class="panel-close">✕</button>
+  <div class="panel-img">🍔</div>
+  <div class="panel-name">The Classic Nömi</div>
+  <div class="panel-desc">Bœuf charolais 100% frais, cheddar affiné 3 mois, oignons confits maison, salade, tomates, cornichons, sauce signature.</div>
+  <div class="panel-price">12,90 €</div>
+
+  <div class="option-group">
+    <div class="option-header">🔥 Cuisson <span class="option-required">Obligatoire</span></div>
+    <div class="option-item"><label><input type="radio" name="cuisson" checked /> Saignant</label> <span class="option-extra"></span></div>
+    <div class="option-item"><label><input type="radio" name="cuisson" /> À point</label> <span class="option-extra"></span></div>
+    <div class="option-item"><label><input type="radio" name="cuisson" /> Bien cuit</label> <span class="option-extra"></span></div>
+  </div>
+
+  <div class="option-group">
+    <div class="option-header">🧀 Suppléments <span style="color:#aaa; font-size:.75rem; font-weight:400;">Optionnel</span></div>
+    <div class="option-item"><label><input type="checkbox" /> Double steak (+120g)</label> <span class="option-extra">+3,00 €</span></div>
+    <div class="option-item"><label><input type="checkbox" /> Bacon croustillant</label> <span class="option-extra">+1,50 €</span></div>
+    <div class="option-item"><label><input type="checkbox" /> Œuf</label> <span class="option-extra">+1,00 €</span></div>
+    <div class="option-item"><label><input type="checkbox" /> Fromage supplémentaire</label> <span class="option-extra">+0,90 €</span></div>
+  </div>
+
+  <div class="qty-row">
+    <button class="qty-btn">−</button>
+    <span class="qty-val">1</span>
+    <button class="qty-btn">+</button>
+    <span style="font-size:.82rem; color:#aaa;">Quantité</span>
+  </div>
+
+  <button class="add-to-cart-btn">Ajouter au panier — 12,90 €</button>
+</aside>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+<div class="page-reviews" data-controller="reviews">
+  <section class="section-header">
+    <h1>Modifier mon avis</h1>
+    <p>Vous pouvez ajuster votre note et votre commentaire.</p>
+  </section>
+
+  <div class="reviews-form-container">
+    <div class="review-form-card">
+      <%= form_with model: @review, url: review_path(@review), method: :patch, class: "form-vertical" do |f| %>
+        <div class="field">
+          <label>Note</label>
+          <%= f.number_field :rating, in: 1..5, class: "form-input", required: true %>
+        </div>
+        <div class="field">
+          <label>Votre avis</label>
+          <%= f.text_area :comment, rows: 5, class: "form-textarea", required: true %>
+        </div>
+        <div class="form-actions">
+          <%= f.submit "Enregistrer", class: "btn-primary" %>
+          <%= link_to "Annuler", reviews_path, class: "btn-outline" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

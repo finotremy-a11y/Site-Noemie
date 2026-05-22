@@ -1,0 +1,89 @@
+<% content_for :page_title, @product.name %>
+
+<div class="admin-grid">
+  <section class="admin-card">
+    <div class="admin-section-title">
+      <h2>Detail produit</h2>
+      <div class="admin-actions">
+        <%= link_to "Editer", edit_admin_product_path(@product), class: "admin-pill-link" %>
+        <%= link_to "Retour", admin_products_path, class: "admin-pill-link" %>
+      </div>
+    </div>
+
+    <div class="admin-grid admin-form-grid">
+      <div>
+        <div class="admin-meta">Categorie</div>
+        <strong><%= @product.category&.name || "Sans categorie" %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Prix</div>
+        <strong><%= number_to_currency(@product.price_cents / 100.0, unit: "€", format: "%n %u") %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Stock</div>
+        <strong><%= @product.stock_quantity %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Statut</div>
+        <span class="status-chip <%= @product.active? ? 'confirmed' : 'cancelled' %>"><%= @product.active? ? 'Actif' : 'Inactif' %></span>
+      </div>
+    </div>
+
+    <div style="margin-top: 1rem;">
+      <div class="admin-meta">Description</div>
+      <p><%= @product.description.presence || "Aucune description." %></p>
+    </div>
+
+    <div>
+      <div class="admin-meta">Badges</div>
+      <% if @product.badges.present? %>
+        <div class="admin-actions">
+          <% @product.badges.each do |badge| %>
+            <span class="status-chip"><%= badge %></span>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="admin-meta">Aucun badge.</p>
+      <% end %>
+    </div>
+
+    <% if @product.image_url.present? %>
+      <div>
+        <div class="admin-meta">Image</div>
+        <a href="<%= @product.image_url %>" target="_blank" rel="noreferrer" class="admin-pill-link">Voir l'image</a>
+      </div>
+    <% end %>
+
+    <div style="margin-top: 1rem;">
+      <%= button_to "Supprimer le produit", admin_product_path(@product), method: :delete, form: { data: { turbo_confirm: "Supprimer ce produit ?" } }, class: "admin-btn admin-btn-danger" %>
+    </div>
+  </section>
+
+  <section class="admin-card">
+    <h2>Historique des prix</h2>
+    <% if @product.product_price_changes.any? %>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Ancien prix</th>
+            <th>Nouveau prix</th>
+            <th>Par</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @product.product_price_changes.order(created_at: :desc).limit(20).each do |change| %>
+            <tr>
+              <td><%= l(change.created_at, format: :short) %></td>
+              <td><%= number_to_currency(change.old_price_cents / 100.0, unit: "€", format: "%n %u") %></td>
+              <td><%= number_to_currency(change.new_price_cents / 100.0, unit: "€", format: "%n %u") %></td>
+              <td><%= change.changed_by.presence || "systeme" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="admin-meta">Aucune modification de prix enregistree.</p>
+    <% end %>
+  </section>
+</div>

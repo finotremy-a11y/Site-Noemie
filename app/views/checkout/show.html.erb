@@ -1,0 +1,200 @@
+<div class="page-checkout" data-controller="checkout"
+  data-checkout-tier-one-max-km-value="<%= @business_setting.tier_one_max_km %>"
+  data-checkout-tier-one-fee-value="<%= @business_setting.tier_one_fee_cents.to_f / 100.0 %>"
+  data-checkout-tier-two-max-km-value="<%= @business_setting.tier_two_max_km %>"
+  data-checkout-tier-two-fee-value="<%= @business_setting.tier_two_fee_cents.to_f / 100.0 %>"
+  data-checkout-vat-rate-value="<%= @business_setting.vat_rate %>">
+  <section class="section-header">
+    <h1>Finaliser ma commande</h1>
+    <div class="checkout-progress">
+      <span class="step active">1. Adresse</span>
+      <span class="divider">→</span>
+      <span class="step">2. Livraison</span>
+      <span class="divider">→</span>
+      <span class="step">3. Paiement</span>
+      <span class="divider">→</span>
+      <span class="step">4. Confirmation</span>
+    </div>
+  </section>
+
+  <div class="checkout-container">
+    <%= form_with url: orders_path, method: :post, id: "checkout-form", class: "checkout-form", local: true do %>
+      <div class="checkout-column">
+        <!-- Étape 1: Adresse -->
+        <section class="checkout-section">
+          <h2>Adresse de livraison</h2>
+
+          <% if current_user&.addresses&.any? %>
+            <div id="existing-addresses">
+              <% current_user.addresses.each do |address| %>
+                <label class="address-option">
+                  <input type="radio" name="address_id" value="<%= address.id %>" <%= "checked" if address.is_default? %>>
+                  <span class="address-content">
+                    <strong><%= address.full_name %></strong><br>
+                    <%= address.street %><br>
+                    <strong><%= address.postal_code %> <%= address.city %></strong>
+                  </span>
+                </label>
+              <% end %>
+            </div>
+            <p class="payment-info">Vous pouvez gérer vos adresses depuis <%= link_to "votre compte", me_addresses_path, class: "edit-link" %>.</p>
+          <% elsif current_user %>
+            <div class="empty-state">
+              <p>Aucune adresse enregistrée pour la livraison.</p>
+              <p>Ajoutez-en une depuis votre espace client, ou choisissez le retrait sur place.</p>
+              <%= link_to "Ajouter une adresse", me_new_address_path, class: "btn-outline" %>
+            </div>
+          <% else %>
+            <div class="empty-state">
+              <p>Vous pouvez préparer votre commande en mode invité.</p>
+              <p>La connexion sera demandée uniquement au moment de valider et payer la commande.</p>
+              <%= link_to "Se connecter", login_path, class: "btn-outline" %>
+            </div>
+          <% end %>
+        </section>
+
+        <!-- Étape 2: Mode de livraison -->
+        <section class="checkout-section">
+          <h2>Mode de livraison</h2>
+
+          <div class="delivery-options">
+            <label class="delivery-option">
+              <input type="radio" name="delivery_mode" value="pickup" data-action="checkout#selectDeliveryMode">
+              <span class="mode-icon">🚗</span>
+              <span class="mode-details">
+                <strong>Retrait sur place</strong>
+                <span class="mode-time">Prêt en 15-20 min</span>
+              </span>
+              <span class="mode-price">Gratuit</span>
+            </label>
+
+            <label class="delivery-option">
+              <input type="radio" name="delivery_mode" value="delivery" checked data-action="checkout#selectDeliveryMode">
+              <span class="mode-icon">🏠</span>
+              <span class="mode-details">
+                <strong>Livraison à domicile</strong>
+                <span class="mode-time"><%= number_to_currency(@business_setting.tier_one_fee_cents / 100.0, unit: "€", format: "%n%u") %> jusqu'à <%= @business_setting.tier_one_max_km %> km · <%= number_to_currency(@business_setting.tier_two_fee_cents / 100.0, unit: "€", format: "%n%u") %> jusqu'à <%= @business_setting.tier_two_max_km %> km</span>
+              </span>
+              <span class="mode-price">Selon distance</span>
+            </label>
+          </div>
+
+          <div class="field" style="margin-top:.75rem;">
+            <label for="delivery-distance-km">Distance livraison (km)</label>
+            <input
+              id="delivery-distance-km"
+              name="delivery_distance_km"
+              type="number"
+              min="0"
+              step="0.1"
+              value="5"
+              data-checkout-target="distanceKm"
+              data-action="input->checkout#updateDistance"
+            >
+            <small class="payment-info">Au-delà de <%= @business_setting.tier_two_max_km %> km, la livraison n'est pas disponible (retrait sur place uniquement).</small>
+          </div>
+        </section>
+
+        <!-- Étape 3: Paiement -->
+        <section class="checkout-section">
+          <h2>Paiement</h2>
+          <p class="payment-info">Choisissez votre mode de paiement</p>
+
+          <div class="delivery-options">
+            <label class="delivery-option">
+              <input type="radio" name="payment_method" value="stripe" checked>
+              <span class="mode-icon">💳</span>
+              <span class="mode-details">
+                <strong>Carte bancaire (Stripe)</strong>
+                <span class="mode-time">Empreinte bancaire, debit uniquement apres validation admin</span>
+              </span>
+              <span class="mode-price">En ligne</span>
+            </label>
+
+            <label class="delivery-option">
+              <input type="radio" name="payment_method" value="cash">
+              <span class="mode-icon">💶</span>
+              <span class="mode-details">
+                <strong>Paiement en direct</strong>
+                <span class="mode-time">Especes a la remise de commande</span>
+              </span>
+              <span class="mode-price">Sur place / livraison</span>
+            </label>
+          </div>
+        </section>
+
+        <!-- Instructions spéciales -->
+        <section class="checkout-section">
+          <h2>Instructions spéciales (optionnel)</h2>
+          <textarea 
+            name="special_instructions" 
+            placeholder="Ex: Sans oignons, extra sauce..." 
+            rows="3"
+            maxlength="500"
+          ></textarea>
+        </section>
+      </div>
+
+      <!-- Résumé commande -->
+      <aside class="checkout-summary">
+        <div class="summary-header">
+          <h3>Résumé</h3>
+          <a href="<%= cart_path %>" class="edit-link">Modifier</a>
+        </div>
+
+        <div class="summary-items">
+          <% if @cart_items&.any? %>
+            <% @cart_items.each do |item| %>
+              <div class="summary-item">
+                <span>
+                  <strong><%= item.quantity %> ×</strong> <%= item.product.name %>
+                </span>
+                <span class="price">€<%= number_with_precision(item.total_price, precision: 2) %></span>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+
+        <div class="summary-totals">
+          <div class="total-line">
+            <span>Sous-total HT</span>
+            <span id="subtotal-amount" data-checkout-target="subtotal">€<%= number_with_precision(@cart.subtotal, precision: 2) %></span>
+          </div>
+          <div class="total-line">
+            <span>Livraison</span>
+            <span id="delivery-fee" data-checkout-target="deliveryFee"><%= number_to_currency(@business_setting.tier_one_fee_cents / 100.0, unit: "€", format: "%n %u") %></span>
+          </div>
+          <div class="total-line">
+            <span>TVA (20%)</span>
+            <span id="vat-amount" data-checkout-target="vatAmount">€<%= number_with_precision(((@cart.subtotal + (@business_setting.tier_one_fee_cents / 100.0)) * @business_setting.vat_rate), precision: 2) %></span>
+          </div>
+          <div class="total-line grand-total">
+            <span>Total TTC</span>
+            <span id="grand-total" data-checkout-target="grandTotal">€<%= number_with_precision((@cart.subtotal + (@business_setting.tier_one_fee_cents / 100.0)) * (1 + @business_setting.vat_rate), precision: 2) %></span>
+          </div>
+        </div>
+
+        <div class="checkout-submit-wrap">
+          <% if current_user %>
+            <button type="submit" class="btn-primary btn-block">
+              💳 Passer la commande
+            </button>
+          <% else %>
+            <button type="submit" class="btn-primary btn-block">
+              💳 Se connecter pour commander
+            </button>
+          <% end %>
+        </div>
+
+        <p class="payment-secure">
+          🔒 Paiement securise ou direct selon votre choix
+        </p>
+        <ul class="checkout-trust-list">
+          <li>Aucune surprise: total mis a jour en temps reel</li>
+          <li>Confirmation immediate par email</li>
+          <li>Suivi de statut depuis votre compte</li>
+        </ul>
+      </aside>
+    <% end %>
+  </div>
+</div>

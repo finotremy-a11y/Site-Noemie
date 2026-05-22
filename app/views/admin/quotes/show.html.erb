@@ -1,0 +1,67 @@
+<% content_for :page_title, "Devis ##{@quote.id}" %>
+
+<div class="admin-grid">
+  <section class="admin-card">
+    <div class="admin-section-title">
+      <h2>Detail demande</h2>
+      <%= link_to "Retour", admin_quotes_path, class: "admin-pill-link" %>
+    </div>
+
+    <div class="admin-grid admin-form-grid">
+      <div>
+        <div class="admin-meta">Email</div>
+        <strong><%= @quote.email %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Telephone</div>
+        <strong><%= @quote.phone.presence || "-" %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Type evenement</div>
+        <strong><%= @quote.event_type.presence || "-" %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Invites</div>
+        <strong><%= @quote.guest_count || "-" %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Date evenement</div>
+        <strong><%= @quote.event_date ? l(@quote.event_date, format: :short) : "-" %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Budget</div>
+        <strong><%= @quote.budget_cents ? number_to_currency(@quote.budget_cents / 100.0, unit: "€", format: "%n %u") : "-" %></strong>
+      </div>
+    </div>
+
+    <div style="margin-top: 1rem;">
+      <div class="admin-meta">Lieu</div>
+      <p><%= @quote.location.presence || "-" %></p>
+    </div>
+
+    <div>
+      <div class="admin-meta">Message</div>
+      <p><%= @quote.message.presence || "Aucun message." %></p>
+    </div>
+
+    <div>
+      <div class="admin-meta">Contraintes</div>
+      <p><%= @quote.constraints.presence || "Aucune contrainte." %></p>
+    </div>
+  </section>
+
+  <section class="admin-card">
+    <h2>Statut du devis</h2>
+    <%= form_with model: @quote, url: status_admin_quote_path(@quote), method: :patch, class: "admin-form" do |f| %>
+      <div class="admin-field">
+        <%= f.label :status, "Nouveau statut" %>
+        <%= f.select :status, options_for_select(Quote::STATUSES.map { |s| [s.humanize, s] }, @quote.status), {}, class: "admin-input" %>
+      </div>
+      <%= f.submit "Mettre a jour", class: "admin-btn" %>
+    <% end %>
+
+    <div style="margin-top: 1rem;">
+      <span class="status-chip <%= @quote.status %>"><%= @quote.status.humanize %></span>
+    </div>
+  </section>
+</div>

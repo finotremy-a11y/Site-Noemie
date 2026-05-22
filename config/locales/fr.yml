@@ -1,0 +1,61 @@
+fr:
+  date:
+    formats:
+      short: "%d/%m/%Y"
+
+  time:
+    formats:
+      short: "%d/%m %H:%M"
+      long: "%d/%m/%Y %H:%M"
+
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      blank: "ne peut pas être vide"
+      inclusion: "n'est pas inclus dans la liste"
+      taken: "est déjà utilisé"
+      record_invalid: "Validation échouée : %{errors}"
+
+  app:
+    name: "N&L Cuisinent"
+
+  enums:
+    order:
+      status:
+        pending: "En attente"
+        payment_processing: "Paiement en cours"
+        paid: "Payée"
+        preparing: "En préparation"
+        ready: "Prête"
+        delivered: "Livrée"
+        cancelled: "Annulée"
+    quote:
+      status:
+        draft: "Brouillon"
+        sent: "Envoyée"
+        accepted: "Acceptée"
+        rejected: "Rejetée"
+        expired: "Expirée"
+
+  audit_log:
+    action:
+      create: "Créé"
+      update: "Modifié"
+      destroy: "Supprimé"
+
+  activerecord:
+    errors:
+      messages:
+        blank: "ne peut pas être vide"
+        inclusion: "n'est pas inclus dans la liste"
+        taken: "est déjà utilisé"
+        record_invalid: "Validation échouée : %{errors}"
+    models:
+      order: "Commande"
+      payment: "Paiement"
+      invoice: "Facture"
+      quote: "Devis"
+      review: "Avis"
+      contact_request: "Demande de contact"
+      product: "Produit"
+      user: "Client"

@@ -1,0 +1,70 @@
+<div class="page-account">
+  <section class="section-header">
+    <h1>Ajouter une adresse</h1>
+  </section>
+
+  <div class="account-container">
+    <aside class="account-menu">
+      <nav class="menu-nav">
+        <a href="<%= me_path %>" class="menu-item">👤 Profil</a>
+        <a href="<%= me_orders_path %>" class="menu-item">📦 Mes commandes</a>
+        <a href="<%= me_addresses_path %>" class="menu-item active">📍 Adresses</a>
+        <a href="<%= me_preferences_path %>" class="menu-item">⚙️ Préférences</a>
+        <a href="<%= me_invoices_path %>" class="menu-item">📄 Factures</a>
+        <hr>
+        <%= link_to "Déconnexion", logout_path, data: { turbo_method: :post }, class: "menu-item menu-danger" %>
+      </nav>
+    </aside>
+
+    <div class="account-main">
+      <div class="account-card">
+        <h3>Nouvelle adresse</h3>
+
+        <%= form_with url: me_create_address_path, method: :post, class: "form-vertical" do |f| %>
+          <div class="field">
+            <label>Nom complet</label>
+            <%= f.text_field :full_name, placeholder: "Marie Dupont", class: "form-input", name: "address[full_name]" %>
+          </div>
+          <div class="field">
+            <label>Type d'adresse</label>
+            <%= f.select :address_type, [["Livraison", "delivery"], ["Facturation", "billing"]], {}, { class: "form-input", name: "address[address_type]" } %>
+          </div>
+          <div class="field">
+            <label>Rue et numéro</label>
+            <%= f.text_field :street, placeholder: "12 rue des Gourmets", class: "form-input", name: "address[street]" %>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Code postal</label>
+              <%= f.text_field :postal_code, placeholder: "75001", class: "form-input", name: "address[postal_code]" %>
+            </div>
+            <div class="field">
+              <label>Ville</label>
+              <%= f.text_field :city, placeholder: "Paris", class: "form-input", name: "address[city]" %>
+            </div>
+          </div>
+          <div class="field">
+            <label>Téléphone</label>
+            <%= f.telephone_field :phone, placeholder: "06 34 93 68 01", class: "form-input", name: "address[phone]" %>
+          </div>
+          <div class="field">
+            <label>Pays</label>
+            <%= f.text_field :country, value: "France", class: "form-input", name: "address[country]" %>
+          </div>
+          <div class="field">
+            <label>Notes (optionnel)</label>
+            <%= f.text_area :notes, rows: 3, class: "form-textarea", name: "address[notes]", placeholder: "Bâtiment, étage, code d'accès..." %>
+          </div>
+          <div class="field-checkbox">
+            <%= f.check_box :is_default, { name: "address[is_default]" }, "1", "0" %>
+            <label>Définir comme adresse par défaut</label>
+          </div>
+          <div class="form-actions">
+            <%= f.submit "Ajouter l'adresse", class: "btn-primary" %>
+            <%= link_to "Annuler", me_addresses_path, class: "btn-outline" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

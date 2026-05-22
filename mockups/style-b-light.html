@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maquette B — Light & Fresh</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #fafaf9; color: #1a1a1a; }
+
+    /* ── NAV ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 60px; height: 68px;
+      background: #fff; border-bottom: 1px solid #f0ede8;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 1px 12px rgba(0,0,0,.04);
+    }
+    .logo { font-size: 1.6rem; font-weight: 900; letter-spacing: -1px; color: #1a1a1a; }
+    .logo em { color: #e8651a; font-style: normal; }
+    nav ul { list-style: none; display: flex; gap: 32px; }
+    nav ul li a { color: #666; text-decoration: none; font-size: .9rem; font-weight: 500; }
+    nav ul li a:hover { color: #e8651a; }
+    .nav-actions { display: flex; gap: 12px; align-items: center; }
+    .btn-ghost { padding: 8px 18px; border: 1.5px solid #e8e4df; border-radius: 8px; background: transparent; color: #444; font-size: .85rem; cursor: pointer; font-weight: 500; }
+    .btn-accent { padding: 9px 22px; border: none; border-radius: 8px; background: #e8651a; color: #fff; font-size: .85rem; font-weight: 700; cursor: pointer; }
+    .cart-pill {
+      display: flex; align-items: center; gap: 7px;
+      background: #f5f0ea; border-radius: 20px; padding: 6px 14px;
+      font-size: .85rem; font-weight: 700; cursor: pointer; color: #1a1a1a;
+    }
+    .cart-count { background: #e8651a; color: #fff; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: .72rem; }
+
+    /* ── STATUS ── */
+    .status-banner {
+      background: #f0fdf4; border-bottom: 1px solid #bbf7d0;
+      padding: 10px 60px; display: flex; align-items: center; justify-content: center;
+      gap: 24px; font-size: .85rem; color: #15803d;
+    }
+    .status-banner strong { font-weight: 700; }
+    .status-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 88vh; display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center; padding: 60px 80px; gap: 80px;
+      background: linear-gradient(135deg, #fefcfa 0%, #fdf6ed 100%);
+    }
+    .hero-text h1 { font-size: 3.6rem; font-weight: 900; line-height: 1.08; letter-spacing: -2px; color: #1a1a1a; }
+    .hero-text h1 .accent { color: #e8651a; }
+    .hero-text p { margin: 22px 0 36px; color: #777; font-size: 1.05rem; line-height: 1.75; max-width: 440px; }
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+    .cta-main { padding: 17px 40px; background: #e8651a; color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 800; cursor: pointer; box-shadow: 0 8px 24px #e8651a40; }
+    .cta-main:hover { background: #d45a16; }
+    .cta-secondary { padding: 17px 36px; background: #fff; color: #1a1a1a; border: 1.5px solid #e8e4df; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    .hero-trust { display: flex; gap: 28px; margin-top: 32px; }
+    .trust-item { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: #888; }
+    .trust-item strong { color: #1a1a1a; font-weight: 700; }
+
+    .hero-visual-wrap { display: flex; align-items: center; justify-content: center; position: relative; }
+    .hero-card-main {
+      width: 380px; background: #fff; border-radius: 24px; padding: 28px;
+      box-shadow: 0 20px 60px rgba(232,101,26,.12);
+      border: 1px solid #f5ece1;
+    }
+    .hero-card-img { height: 220px; background: linear-gradient(135deg, #fff5ea, #ffe8cc); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 6rem; margin-bottom: 20px; }
+    .hero-card-tag { display: inline-block; background: #fef3e2; color: #c2410c; font-size: .72rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-bottom: 10px; }
+    .hero-card-name { font-size: 1.2rem; font-weight: 800; margin-bottom: 4px; }
+    .hero-card-sub { font-size: .83rem; color: #888; margin-bottom: 16px; }
+    .hero-card-footer { display: flex; justify-content: space-between; align-items: center; }
+    .hero-card-price { font-size: 1.4rem; font-weight: 900; color: #e8651a; }
+    .add-btn { padding: 10px 22px; background: #e8651a; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: .9rem; cursor: pointer; }
+    .floating-badge {
+      position: absolute; top: 10px; right: -20px;
+      background: #fff; border-radius: 16px; padding: 12px 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08); font-size: .82rem; font-weight: 700;
+      border: 1px solid #f0ede8;
+    }
+    .floating-badge2 {
+      position: absolute; bottom: 10px; left: -20px;
+      background: #fff; border-radius: 16px; padding: 12px 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08); font-size: .82rem; font-weight: 700;
+      border: 1px solid #f0ede8;
+    }
+
+    /* ── SECTION ── */
+    .section { padding: 80px 80px; }
+    .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 36px; }
+    .section-title { font-size: 2rem; font-weight: 900; letter-spacing: -1px; }
+    .section-title span { color: #e8651a; }
+    .section-sub { color: #999; font-size: .9rem; }
+    .btn-link { background: none; border: none; color: #e8651a; font-weight: 700; font-size: .9rem; cursor: pointer; text-decoration: underline; }
+
+    /* ── CATÉGORIES ── */
+    .categories { display: flex; gap: 10px; margin-bottom: 32px; }
+    .cat-pill { padding: 8px 20px; border: 1.5px solid #e8e4df; border-radius: 20px; background: #fff; font-size: .85rem; font-weight: 600; cursor: pointer; color: #555; }
+    .cat-pill.active { background: #e8651a; border-color: #e8651a; color: #fff; }
+
+    /* ── PRODUITS ── */
+    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .product-card {
+      background: #fff; border: 1px solid #f0ede8; border-radius: 16px;
+      overflow: hidden; transition: transform .2s, box-shadow .2s;
+    }
+    .product-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,.07); }
+    .product-img {
+      height: 180px; background: linear-gradient(135deg, #fff5ea, #ffecd5);
+      display: flex; align-items: center; justify-content: center; font-size: 3.5rem;
+    }
+    .product-body { padding: 18px; }
+    .product-tags { display: flex; gap: 6px; margin-bottom: 8px; }
+    .tag { font-size: .7rem; padding: 3px 10px; border-radius: 20px; font-weight: 700; }
+    .tag-bestseller { background: #fef3e2; color: #c2410c; }
+    .tag-new { background: #f0fdf4; color: #15803d; }
+    .tag-veggie { background: #f0fdf4; color: #15803d; }
+    .product-name { font-size: 1rem; font-weight: 800; margin-bottom: 4px; }
+    .product-desc { font-size: .8rem; color: #999; margin-bottom: 14px; line-height: 1.5; }
+    .product-footer { display: flex; align-items: center; justify-content: space-between; }
+    .product-price { font-size: 1.2rem; font-weight: 900; color: #e8651a; }
+    .add-btn-light { padding: 8px 16px; background: #fff; color: #e8651a; border: 1.5px solid #e8651a; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: .82rem; }
+    .add-btn-light:hover { background: #e8651a; color: #fff; }
+
+    /* ── INFOS ── */
+    .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .info-card {
+      background: #fff; border: 1px solid #f0ede8; border-radius: 18px; padding: 30px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .info-icon { font-size: 2.2rem; }
+    .info-title { font-size: 1rem; font-weight: 800; }
+    .info-content { font-size: .85rem; color: #888; line-height: 1.8; }
+    .info-link { font-size: .85rem; color: #e8651a; font-weight: 700; text-decoration: none; }
+
+    /* ── AVIS ── */
+    .avis-header {
+      display: flex; align-items: center; gap: 24px;
+      background: #fff; border: 1px solid #f0ede8; border-radius: 18px; padding: 28px 32px; margin-bottom: 24px;
+    }
+    .rating-big { font-size: 4rem; font-weight: 900; color: #e8651a; line-height: 1; }
+    .stars-line { color: #e8651a; font-size: 1.4rem; }
+    .rating-sub { font-size: .82rem; color: #aaa; margin-top: 4px; }
+    .avis-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .avis-card {
+      background: #fff; border: 1px solid #f0ede8; border-radius: 14px; padding: 22px;
+    }
+    .avis-stars { color: #fbbf24; font-size: 1rem; margin-bottom: 8px; }
+    .avis-text { font-size: .85rem; color: #666; line-height: 1.6; margin-bottom: 12px; }
+    .avis-author { font-size: .78rem; color: #bbb; font-weight: 600; }
+    .verified { color: #15803d; font-size: .72rem; font-weight: 700; }
+
+    /* ── CTA ÉVÉNEMENT ── */
+    .cta-event {
+      background: linear-gradient(135deg, #1a1a1a, #2d2d2d); color: #fff;
+      border-radius: 24px; padding: 64px 80px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cta-event-text h2 { font-size: 2rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 8px; }
+    .cta-event-text p { color: #aaa; font-size: .9rem; }
+    .cta-event .cta-main { white-space: nowrap; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #fff; border-top: 1px solid #f0ede8;
+      padding: 36px 80px; display: flex; justify-content: space-between; align-items: center;
+    }
+    footer .footer-logo { font-size: 1.2rem; font-weight: 900; color: #1a1a1a; }
+    footer .footer-logo em { color: #e8651a; font-style: normal; }
+    footer nav ul { display: flex; gap: 24px; list-style: none; }
+    footer nav ul li a { color: #aaa; font-size: .82rem; text-decoration: none; }
+    footer small { color: #ccc; font-size: .78rem; }
+
+    .style-label {
+      position: fixed; bottom: 20px; right: 20px;
+      background: #e8651a; color: #fff; padding: 10px 18px;
+      border-radius: 8px; font-weight: 800; font-size: .85rem; z-index: 200;
+      box-shadow: 0 4px 20px #e8651a40;
+    }
+  </style>
+</head>
+<body>
+
+<div class="style-label">Style B — Light & Fresh</div>
+
+<!-- STATUS -->
+<div class="status-banner">
+  <span class="status-dot"></span>
+  <strong>Ouvert maintenant</strong>
+  Commandes acceptées jusqu'à <strong>20h30</strong> · Livraison estimée <strong>25–35 min</strong>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Nömi<em>'s</em></div>
+  <ul>
+    <li><a href="#">Carte</a></li>
+    <li><a href="#">Commander</a></li>
+    <li><a href="#">Événements</a></li>
+    <li><a href="#">Avis</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-ghost">Connexion</button>
+    <div class="cart-pill">🛒 Mon panier <span class="cart-count">2</span></div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text">
+    <h1>Des burgers<br>gourmands,<br><span class="accent">vrais & locaux.</span></h1>
+    <p>Tout est préparé à la minute avec des produits sourcés chez des producteurs locaux. Commandez en ligne, récupérez en 15 min ou faites-vous livrer.</p>
+    <div class="hero-ctas">
+      <button class="cta-main">Commander maintenant</button>
+      <button class="cta-secondary">Voir la carte →</button>
+    </div>
+    <div class="hero-trust">
+      <div class="trust-item">⭐ <strong>4,9/5</strong> · 247 avis</div>
+      <div class="trust-item">🥩 <strong>Viande fraîche</strong></div>
+      <div class="trust-item">⚡ <strong>15 min</strong> en retrait</div>
+    </div>
+  </div>
+  <div class="hero-visual-wrap">
+    <div class="hero-card-main">
+      <div class="hero-card-img">🍔</div>
+      <span class="hero-card-tag">⭐ Best-seller</span>
+      <div class="hero-card-name">The Classic Nömi</div>
+      <div class="hero-card-sub">Bœuf charolais · Cheddar · Oignons confits</div>
+      <div class="hero-card-footer">
+        <span class="hero-card-price">12,90 €</span>
+        <button class="add-btn">+ Ajouter</button>
+      </div>
+    </div>
+    <div class="floating-badge">🏆 #1 ce mois</div>
+    <div class="floating-badge2">🛵 Livraison 25 min</div>
+  </div>
+</section>
+
+<!-- PRODUITS PHARES -->
+<section class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">À la <span>carte</span></div>
+      <div class="section-sub">Fait à la minute, avec amour</div>
+    </div>
+    <button class="btn-link">Voir tout →</button>
+  </div>
+  <div class="categories">
+    <button class="cat-pill active">Tous</button>
+    <button class="cat-pill">🍔 Burgers</button>
+    <button class="cat-pill">🍟 Accompagnements</button>
+    <button class="cat-pill">🥤 Boissons</button>
+    <button class="cat-pill">🍮 Desserts</button>
+  </div>
+  <div class="products-grid">
+    <div class="product-card">
+      <div class="product-img">🍔</div>
+      <div class="product-body">
+        <div class="product-tags">
+          <span class="tag tag-bestseller">⭐ Best-seller</span>
+        </div>
+        <div class="product-name">The Classic Nömi</div>
+        <div class="product-desc">Bœuf charolais, cheddar affiné, oignons confits, sauce maison</div>
+        <div class="product-footer">
+          <span class="product-price">12,90 €</span>
+          <button class="add-btn-light">+ Ajouter</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-card">
+      <div class="product-img">🥗</div>
+      <div class="product-body">
+        <div class="product-tags">
+          <span class="tag tag-new">🌱 Nouveauté</span>
+          <span class="tag tag-veggie">Veggie</span>
+        </div>
+        <div class="product-name">Le Green Beast</div>
+        <div class="product-desc">Steak de champignons, guacamole, pickles, brioche végane</div>
+        <div class="product-footer">
+          <span class="product-price">13,50 €</span>
+          <button class="add-btn-light">+ Ajouter</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-card">
+      <div class="product-img">🌶</div>
+      <div class="product-body">
+        <div class="product-tags">
+          <span class="tag tag-bestseller">🔥 Intense</span>
+        </div>
+        <div class="product-name">Double Inferno</div>
+        <div class="product-desc">Double steak, jalapeños, sauce sriracha, bacon croustillant</div>
+        <div class="product-footer">
+          <span class="product-price">15,90 €</span>
+          <button class="add-btn-light">+ Ajouter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INFOS PRATIQUES -->
+<section class="section" style="padding-top:0; background:#f5f1ec; margin: 0 -0px; padding-left:80px; padding-right:80px;">
+  <div class="section-header">
+    <div>
+      <div class="section-title">Où nous <span>trouver</span></div>
+      <div class="section-sub">Retrait ou livraison, à vous de choisir</div>
+    </div>
+  </div>
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-icon">📍</div>
+      <div class="info-title">Click & Collect</div>
+      <div class="info-content">Place du Marché, 69001 Lyon<br>Lun–Ven : 11h30–14h30<br>Ven–Sam : 18h00–22h00</div>
+      <a class="info-link" href="#">Voir sur la carte →</a>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">🛵</div>
+      <div class="info-title">Livraison à domicile</div>
+      <div class="info-content">Rayon 5 km · 25–40 min<br>Frais : 2,90 € (offerts dès 30 €)</div>
+      <a class="info-link" href="#">Vérifier ma zone →</a>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">🎉</div>
+      <div class="info-title">Événements privés</div>
+      <div class="info-content">On se déplace pour vos événements. Devis personnalisé sous 48h.</div>
+      <a class="info-link" href="#">Demander un devis →</a>
+    </div>
+  </div>
+</section>
+
+<!-- AVIS -->
+<section class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">Ils nous font <span>confiance</span></div>
+    </div>
+    <button class="btn-link">Laisser un avis →</button>
+  </div>
+  <div class="avis-header">
+    <div class="rating-big">4,9</div>
+    <div>
+      <div class="stars-line">★★★★★</div>
+      <div class="rating-sub">247 avis vérifiés</div>
+    </div>
+  </div>
+  <div class="avis-grid">
+    <div class="avis-card">
+      <div class="avis-stars">★★★★★</div>
+      <div class="avis-text">"Le meilleur burger que j'ai mangé à Lyon. Les oignons confits sont incroyables !"</div>
+      <div class="avis-author">Marie L. · <span class="verified">✓ Avis vérifié</span></div>
+    </div>
+    <div class="avis-card">
+      <div class="avis-stars">★★★★★</div>
+      <div class="avis-text">"Commande en 3 clics, livré en 25 min, encore chaud. Parfait pour une pause déjeuner."</div>
+      <div class="avis-author">Thomas R. · <span class="verified">✓ Avis vérifié</span></div>
+    </div>
+    <div class="avis-card">
+      <div class="avis-stars">★★★★☆</div>
+      <div class="avis-text">"Commandé pour tout le bureau, tout le monde a adoré. Le Double Inferno, c'est sérieux."</div>
+      <div class="avis-author">Claire M. · <span class="verified">✓ Avis vérifié</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA ÉVÉNEMENT -->
+<section class="section" style="padding-top:0;">
+  <div class="cta-event">
+    <div class="cta-event-text">
+      <h2>Un événement à organiser ? 🎉</h2>
+      <p>Mariages, soirées d'entreprise, festivals — on régale tout le monde.</p>
+    </div>
+    <button class="cta-main">Demander un devis gratuit</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Nömi<em>'s</em> Burgers</div>
+  <nav><ul>
+    <li><a href="#">Contact</a></li>
+    <li><a href="#">CGV</a></li>
+    <li><a href="#">Confidentialité</a></li>
+    <li><a href="#">Mentions légales</a></li>
+  </ul></nav>
+  <small>© 2026 Nömi's Burgers</small>
+</footer>
+
+</body>
+</html>

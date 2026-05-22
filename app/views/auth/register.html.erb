@@ -1,0 +1,54 @@
+<div class="page-auth">
+  <div class="auth-container">
+    <div class="auth-card">
+      <h1>Créer un compte</h1>
+      <p class="auth-subtitle">Rejoignez la communauté N&L Cuisinent</p>
+
+      <%= form_with url: auth_register_path, local: true, method: :post, class: "auth-form" do |f| %>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <%= f.email_field :email, required: true, placeholder: "vous@exemple.fr" %>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <%= f.password_field :password, required: true, placeholder: "Au minimum 8 caractères" %>
+        </div>
+
+        <div class="form-group">
+          <label for="password_confirmation">Confirmer le mot de passe</label>
+          <%= f.password_field :password_confirmation, required: true, placeholder: "Confirmer le mot de passe" %>
+        </div>
+
+        <div class="checkbox-group">
+          <label>
+            <input type="checkbox" name="newsletter" value="1">
+            Je souhaite recevoir des offres et actualités
+          </label>
+        </div>
+
+        <button type="submit" class="btn-primary btn-block">
+          Créer mon compte
+        </button>
+      <% end %>
+
+      <div class="auth-divider">ou</div>
+
+      <div class="auth-actions">
+        <p>Vous avez déjà un compte?</p>
+        <%= link_to "Se connecter", login_path, class: "btn-secondary btn-block" %>
+      </div>
+    </div>
+
+    <div class="auth-info">
+      <h2>Avantages de l'inscription:</h2>
+      <ul>
+        <li>✓ Commandes plus rapides</li>
+        <li>✓ Suivi de vos commandes</li>
+        <li>✓ Adresses enregistrées</li>
+        <li>✓ Historique d'achats</li>
+        <li>✓ Offres exclusives</li>
+      </ul>
+    </div>
+  </div>
+</div>

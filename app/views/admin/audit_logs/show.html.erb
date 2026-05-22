@@ -1,0 +1,36 @@
+<% content_for :page_title, "Audit ##{@audit_log.id}" %>
+
+<div class="admin-card">
+  <div class="admin-section-title">
+    <h2>Detail evenement</h2>
+    <%= link_to "Retour", admin_audit_logs_path, class: "admin-pill-link" %>
+  </div>
+
+  <div class="admin-grid admin-form-grid">
+    <div>
+      <div class="admin-meta">Date</div>
+      <strong><%= l(@audit_log.created_at, format: :short) %></strong>
+    </div>
+    <div>
+      <div class="admin-meta">Action</div>
+      <span class="status-chip"><%= @audit_log.display_action %></span>
+    </div>
+    <div>
+      <div class="admin-meta">Ressource</div>
+      <strong><%= "#{@audit_log.resource_type} ##{@audit_log.resource_id}" %></strong>
+    </div>
+    <div>
+      <div class="admin-meta">Utilisateur</div>
+      <strong><%= @audit_log.user&.email || "Systeme" %></strong>
+    </div>
+    <div>
+      <div class="admin-meta">Request ID</div>
+      <strong><%= @audit_log.request_id.presence || "-" %></strong>
+    </div>
+  </div>
+
+  <div style="margin-top: 1rem;">
+    <div class="admin-meta">Metadata JSON</div>
+    <pre class="admin-pre"><%= JSON.pretty_generate(@audit_log.metadata || {}) %></pre>
+  </div>
+</div>

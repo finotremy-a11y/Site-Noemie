@@ -1,0 +1,54 @@
+<header class="header">
+  <div class="header-top">
+    <div class="status-bar">
+      Ouvert aujourd'hui - Commandes jusqu'à 20h30 - Livraison dès 12h00
+    </div>
+  </div>
+
+  <nav class="navbar">
+    <div class="navbar-container" data-nav-root>
+      <a href="<%= root_path %>" class="logo" aria-label="Retour à l'accueil">
+        <strong>N&L</strong> <span>Cuisinent</span>
+      </a>
+
+      <button
+        class="nav-toggle"
+        type="button"
+        aria-label="Ouvrir le menu de navigation"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        data-nav-toggle>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+
+      <div class="nav-panel" id="mobile-nav" data-nav-panel>
+        <ul class="nav-menu">
+          <li><a href="<%= catalog_path %>">Carte</a></li>
+          <li><a href="<%= checkout_path %>">Commander</a></li>
+          <li><a href="<%= root_path(anchor: "events") %>">Événements</a></li>
+          <li><a href="<%= reviews_path %>">Avis</a></li>
+          <li><a href="<%= contact_path %>">Contact</a></li>
+        </ul>
+
+        <div class="nav-actions">
+          <% if current_user %>
+            <a href="<%= me_path %>" class="nav-link">
+              <span class="icon">👤</span> <%= current_user.email %>
+            </a>
+            <%= link_to "Déconnexion", logout_path, data: { turbo_method: :post }, class: "btn-outline" %>
+          <% else %>
+            <%= link_to "Connexion", login_path, class: "btn-outline" %>
+            <%= link_to "Inscription", register_path, class: "btn-outline" %>
+          <% end %>
+
+          <a href="<%= cart_path %>" class="btn-primary cart-toggle">
+            <span class="icon">🛒</span> Mon panier
+            <span class="cart-badge" id="cart-count" style="display: none;">0</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>

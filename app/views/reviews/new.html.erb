@@ -1,0 +1,43 @@
+<div class="page-reviews" data-controller="reviews">
+  <section class="section-header">
+    <h1>Laisser un avis</h1>
+    <p>Partagez votre expérience avec N&L Cuisinent</p>
+  </section>
+
+  <div class="reviews-form-container">
+    <% unless user_signed_in? %>
+      <div class="auth-prompt">
+        <p>Vous devez être connecté pour laisser un avis.</p>
+        <%= link_to "Se connecter", login_path, class: "btn-primary" %>
+      </div>
+    <% else %>
+      <div class="review-form-card">
+        <%= form_with url: reviews_path, method: :post, class: "form-vertical" do |f| %>
+          <div class="field">
+            <label>Note</label>
+            <div class="star-rating" data-controller="reviews">
+              <% (1..5).each do |i| %>
+                <button type="button"
+                        class="star-btn"
+                        data-value="<%= i %>"
+                        data-action="click->reviews#setRating"
+                        data-reviews-target="star">
+                  ★
+                </button>
+              <% end %>
+              <%= f.hidden_field :rating, value: "", data: { reviews_target: "ratingInput" }, name: "review[rating]" %>
+            </div>
+          </div>
+          <div class="field">
+            <label>Votre avis</label>
+            <%= f.text_area :comment, placeholder: "Décrivez votre expérience...", rows: 5, class: "form-textarea", name: "review[comment]" %>
+          </div>
+          <div class="form-actions">
+            <%= f.submit "Publier mon avis", class: "btn-primary" %>
+            <%= link_to "Annuler", reviews_path, class: "btn-outline" %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

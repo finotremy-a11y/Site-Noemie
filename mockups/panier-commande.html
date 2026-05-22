@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maquette — Panier & Commande</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #111; color: #f0ece4; }
+
+    /* NAV */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 60px; background: rgba(17,17,17,.95);
+      border-bottom: 1px solid #2a2a2a; position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-size: 1.4rem; font-weight: 900; color: #f5a623; }
+    .logo span { color: #f0ece4; }
+    .nav-back { display: flex; align-items: center; gap: 8px; color: #555; font-size: .88rem; cursor: pointer; text-decoration: none; }
+    .nav-back:hover { color: #f5a623; }
+
+    /* STEPPER */
+    .stepper {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; background: #151515; border-bottom: 1px solid #2a2a2a; padding: 20px 40px;
+    }
+    .step { display: flex; align-items: center; gap: 10px; }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: .85rem; font-weight: 800;
+    }
+    .step.done .step-num { background: #f5a623; color: #111; }
+    .step.active .step-num { background: #f5a623; color: #111; box-shadow: 0 0 0 4px #f5a62325; }
+    .step.pending .step-num { background: #222; color: #444; }
+    .step-label { font-size: .82rem; font-weight: 600; }
+    .step.done .step-label { color: #f5a623; }
+    .step.active .step-label { color: #f0ece4; font-weight: 800; }
+    .step.pending .step-label { color: #444; }
+    .step-sep { width: 60px; height: 2px; background: #222; margin: 0 8px; }
+    .step-sep.done { background: #f5a623; }
+
+    /* LAYOUT */
+    .checkout-layout {
+      display: grid; grid-template-columns: 1fr 380px;
+      gap: 24px; max-width: 1100px; margin: 32px auto; padding: 0 24px;
+    }
+
+    .checkout-main { display: flex; flex-direction: column; gap: 20px; }
+
+    .card {
+      background: #181818; border: 1px solid #222; border-radius: 16px; overflow: hidden;
+    }
+    .card-header {
+      padding: 18px 24px; border-bottom: 1px solid #222;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title { font-size: 1rem; font-weight: 800; color: #f0ece4; }
+    .card-edit { font-size: .82rem; color: #f5a623; cursor: pointer; font-weight: 600; }
+    .card-body { padding: 24px; }
+
+    /* PANIER */
+    .cart-items { display: flex; flex-direction: column; gap: 16px; }
+    .cart-item { display: flex; gap: 16px; align-items: flex-start; }
+    .item-img {
+      width: 72px; height: 72px; background: linear-gradient(135deg, #2a1500, #1a0e00);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; flex-shrink: 0;
+    }
+    .item-info { flex: 1; }
+    .item-name { font-size: .95rem; font-weight: 700; margin-bottom: 3px; color: #f0ece4; }
+    .item-options { font-size: .78rem; color: #555; }
+    .item-qty-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .qty-btn { width: 28px; height: 28px; border: 1px solid #2a2a2a; border-radius: 6px; background: #111; color: #f0ece4; cursor: pointer; font-size: .9rem; display: flex; align-items: center; justify-content: center; }
+    .qty-val { font-size: .9rem; font-weight: 700; min-width: 20px; text-align: center; }
+    .item-del { font-size: .78rem; color: #333; cursor: pointer; margin-left: 6px; }
+    .item-del:hover { color: #ef4444; }
+    .item-price { font-size: 1rem; font-weight: 800; color: #f0ece4; white-space: nowrap; }
+    .item-separator { border: none; border-top: 1px solid #1e1e1e; }
+
+    /* MODE SERVICE */
+    .service-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .service-option {
+      border: 2px solid #222; border-radius: 12px; padding: 20px;
+      cursor: pointer; transition: all .15s; position: relative; background: #141414;
+    }
+    .service-option:hover { border-color: #f5a62335; }
+    .service-option.selected { border-color: #f5a623; background: #f5a62310; }
+    .service-option .check {
+      position: absolute; top: 12px; right: 12px;
+      width: 20px; height: 20px; border: 2px solid #333; border-radius: 50%;
+      background: #111; display: flex; align-items: center; justify-content: center;
+    }
+    .service-option.selected .check { background: #f5a623; border-color: #f5a623; color: #111; font-size: .7rem; }
+    .service-icon { font-size: 2rem; margin-bottom: 10px; }
+    .service-title { font-size: .95rem; font-weight: 800; margin-bottom: 4px; color: #f0ece4; }
+    .service-desc { font-size: .78rem; color: #666; line-height: 1.5; }
+    .service-fee { display: inline-block; margin-top: 8px; font-size: .75rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; background: #22c55e20; color: #22c55e; }
+
+    /* ADRESSE */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.span-2 { grid-column: span 2; }
+    label { font-size: .8rem; font-weight: 700; color: #666; }
+    input, select { padding: 10px 14px; border: 1.5px solid #2a2a2a; border-radius: 8px; font-size: .9rem; background: #141414; color: #f0ece4; transition: border-color .15s; }
+    input:focus, select:focus { outline: none; border-color: #f5a623; background: #1a1a1a; }
+    .input-hint { font-size: .72rem; color: #444; }
+    .zone-ok { background: #22c55e15; border: 1px solid #22c55e30; border-radius: 8px; padding: 10px 14px; font-size: .82rem; color: #22c55e; display: flex; align-items: center; gap: 8px; }
+
+    /* CRÉNEAU */
+    .slots-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .slot-btn {
+      padding: 10px; text-align: center; border: 1.5px solid #2a2a2a; border-radius: 8px;
+      cursor: pointer; font-size: .82rem; font-weight: 600; background: #141414; color: #888;
+    }
+    .slot-btn:hover { border-color: #f5a623; color: #f5a623; }
+    .slot-btn.selected { background: #f5a623; border-color: #f5a623; color: #111; font-weight: 800; }
+    .slot-btn.full { background: #111; color: #333; cursor: not-allowed; text-decoration: line-through; }
+
+    /* RÉCAP SIDEBAR */
+    .recap-card {
+      background: #181818; border: 1px solid #222; border-radius: 16px;
+      position: sticky; top: 76px; overflow: hidden;
+    }
+    .recap-header { padding: 18px 24px; border-bottom: 1px solid #222; font-size: 1rem; font-weight: 800; color: #f0ece4; }
+    .recap-body { padding: 20px 24px; }
+    .recap-line { display: flex; justify-content: space-between; align-items: center; font-size: .88rem; margin-bottom: 10px; }
+    .recap-line.muted { color: #555; }
+    .recap-sep { border: none; border-top: 1px solid #222; margin: 14px 0; }
+    .recap-total { display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; font-weight: 900; color: #f0ece4; }
+    .total-amount { color: #f5a623; }
+    .btn-checkout { width: 100%; padding: 16px; background: #f5a623; color: #111; border: none; border-radius: 12px; font-size: 1rem; font-weight: 800; cursor: pointer; margin-top: 16px; }
+    .btn-checkout:hover { background: #e09515; }
+    .secure-note { text-align: center; font-size: .72rem; color: #444; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+
+    .recap-items { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .recap-item { display: flex; gap: 10px; align-items: center; }
+    .recap-item-thumb {
+      width: 44px; height: 44px; background: linear-gradient(135deg, #2a1500, #1a0e00); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;
+    }
+    .recap-item-info { flex: 1; }
+    .recap-item-name { font-size: .82rem; font-weight: 700; color: #f0ece4; }
+    .recap-item-sub { font-size: .72rem; color: #444; }
+    .recap-item-price { font-size: .85rem; font-weight: 800; color: #f0ece4; }
+
+    /* ÉCRAN CONFIRMATION */
+    .confirmation {
+      max-width: 560px; margin: 60px auto; padding: 0 24px; text-align: center;
+    }
+    .conf-icon { font-size: 5rem; margin-bottom: 20px; }
+    .conf-title { font-size: 2rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 8px; }
+    .conf-title span { color: #f5a623; }
+    .conf-subtitle { color: #666; font-size: .95rem; line-height: 1.7; margin-bottom: 32px; }
+    .conf-card {
+      background: #181818; border: 1px solid #222; border-radius: 16px; padding: 28px;
+      text-align: left; margin-bottom: 20px;
+    }
+    .conf-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1e1e1e; font-size: .9rem; color: #f0ece4; }
+    .conf-row:last-child { border-bottom: none; }
+    .conf-row strong { font-weight: 700; }
+    .conf-row .val { color: #666; }
+    .btn-track { width: 100%; padding: 14px; background: #f5a623; color: #111; border: none; border-radius: 12px; font-size: .95rem; font-weight: 800; cursor: pointer; }
+
+    .section-divider {
+      font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;
+      color: #333; text-align: center; margin: 8px 0 4px; position: relative;
+    }
+    .section-divider::before, .section-divider::after {
+      content: ''; position: absolute; top: 50%; width: 38%; height: 1px; background: #222;
+    }
+    .section-divider::before { left: 0; }
+    .section-divider::after { right: 0; }
+
+    .tabs { display: flex; gap: 2px; margin-bottom: 24px; background: #111; border-radius: 10px; padding: 4px; border: 1px solid #222; }
+    .tab-btn { flex: 1; padding: 9px; border: none; border-radius: 8px; background: transparent; font-size: .85rem; font-weight: 600; cursor: pointer; color: #555; }
+    .tab-btn.active { background: #f5a623; color: #111; font-weight: 800; }
+
+    /* ÉTAPE SUIVANTE BANNER */
+    .step-banner {
+      background: #151515; padding: 20px 40px; margin-top: 40px;
+      display: flex; align-items: center; gap: 12px; border-top: 1px solid #222; border-bottom: 1px solid #222;
+    }
+    .step-banner-badge { background: #f5a623; color: #111; padding: 4px 12px; border-radius: 20px; font-size: .75rem; font-weight: 800; }
+    .step-banner-label { font-size: .9rem; font-weight: 700; color: #888; }
+
+    .style-label {
+      position: fixed; bottom: 20px; left: 20px;
+      background: #f5a623; color: #111; padding: 10px 18px;
+      border-radius: 8px; font-weight: 800; font-size: .85rem; z-index: 200;
+      box-shadow: 0 4px 20px #f5a62350;
+    }
+  </style>
+</head>
+<body>
+
+<div class="style-label">Page — Panier & Commande</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Nömi<span>'s</span></div>
+  <a class="nav-back" href="#">← Continuer mes achats</a>
+</nav>
+
+<!-- STEPPER -->
+<div class="stepper">
+  <div class="step done">
+    <div class="step-num">✓</div>
+    <div class="step-label">Panier</div>
+  </div>
+  <div class="step-sep done"></div>
+  <div class="step active">
+    <div class="step-num">2</div>
+    <div class="step-label">Livraison</div>
+  </div>
+  <div class="step-sep"></div>
+  <div class="step pending">
+    <div class="step-num">3</div>
+    <div class="step-label">Paiement</div>
+  </div>
+  <div class="step-sep"></div>
+  <div class="step pending">
+    <div class="step-num">4</div>
+    <div class="step-label">Confirmation</div>
+  </div>
+</div>
+
+<div class="checkout-layout">
+  <div class="checkout-main">
+
+    <!-- PANIER (résumé éditable) -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🛒 Mon panier <span style="color:#aaa; font-weight:400; font-size:.85rem;">(3 articles)</span></div>
+        <span class="card-edit">Modifier</span>
+      </div>
+      <div class="card-body">
+        <div class="cart-items">
+          <div class="cart-item">
+            <div class="item-img">🍔</div>
+            <div class="item-info">
+              <div class="item-name">The Classic Nömi</div>
+              <div class="item-options">À point · + Bacon croustillant</div>
+              <div class="item-qty-row">
+                <button class="qty-btn">−</button>
+                <span class="qty-val">1</span>
+                <button class="qty-btn">+</button>
+                <span class="item-del">🗑 Retirer</span>
+              </div>
+            </div>
+            <span class="item-price">14,40 €</span>
+          </div>
+          <hr class="item-separator" />
+          <div class="cart-item">
+            <div class="item-img">🌶</div>
+            <div class="item-info">
+              <div class="item-name">Double Inferno</div>
+              <div class="item-options">Bien cuit · Nature</div>
+              <div class="item-qty-row">
+                <button class="qty-btn">−</button>
+                <span class="qty-val">2</span>
+                <button class="qty-btn">+</button>
+                <span class="item-del">🗑 Retirer</span>
+              </div>
+            </div>
+            <span class="item-price">31,80 €</span>
+          </div>
+          <hr class="item-separator" />
+          <div class="cart-item">
+            <div class="item-img">🍟</div>
+            <div class="item-info">
+              <div class="item-name">Frites maison (grande)</div>
+              <div class="item-options">Nature</div>
+              <div class="item-qty-row">
+                <button class="qty-btn">−</button>
+                <span class="qty-val">1</span>
+                <button class="qty-btn">+</button>
+                <span class="item-del">🗑 Retirer</span>
+              </div>
+            </div>
+            <span class="item-price">4,50 €</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODE DE SERVICE -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📦 Mode de service</div>
+      </div>
+      <div class="card-body">
+        <div class="service-choice">
+          <div class="service-option">
+            <div class="check"></div>
+            <div class="service-icon">📍</div>
+            <div class="service-title">Click & Collect</div>
+            <div class="service-desc">Récupérez votre commande à notre point de retrait — Place du Marché, Lyon</div>
+            <span class="service-fee">Gratuit · ~15 min</span>
+          </div>
+          <div class="service-option selected">
+            <div class="check">✓</div>
+            <div class="service-icon">🛵</div>
+            <div class="service-title">Livraison à domicile</div>
+            <div class="service-desc">Livré directement chez vous dans votre zone de service</div>
+            <span class="service-fee">+2,90 € · 25–40 min</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADRESSE -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🏠 Adresse de livraison</div>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Prénom</label>
+            <input type="text" value="Marie" />
+          </div>
+          <div class="form-group">
+            <label>Nom</label>
+            <input type="text" value="Dupont" />
+          </div>
+          <div class="form-group span-2">
+            <label>Adresse</label>
+            <input type="text" value="12 Rue de la Paix" />
+            <div class="zone-ok">✅ Zone couverte — livraison disponible</div>
+          </div>
+          <div class="form-group">
+            <label>Code postal</label>
+            <input type="text" value="69001" />
+          </div>
+          <div class="form-group">
+            <label>Ville</label>
+            <input type="text" value="Lyon" />
+          </div>
+          <div class="form-group span-2">
+            <label>Complément d'adresse</label>
+            <input type="text" placeholder="Bâtiment, étage, code d'accès…" />
+          </div>
+          <div class="form-group">
+            <label>Téléphone</label>
+            <input type="tel" value="06 34 93 68 01" />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" value="marie@email.fr" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CRÉNEAU -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">⏰ Choisir un créneau</div>
+      </div>
+      <div class="card-body">
+        <p style="font-size:.85rem; color:#888; margin-bottom:18px;">Sélectionnez l'horaire qui vous convient le mieux. Les créneaux sont limités.</p>
+        <div class="slots-grid">
+          <div class="slot-btn">12h00</div>
+          <div class="slot-btn">12h15</div>
+          <div class="slot-btn selected">12h30</div>
+          <div class="slot-btn">12h45</div>
+          <div class="slot-btn">13h00</div>
+          <div class="slot-btn full">13h15 Complet</div>
+          <div class="slot-btn full">13h30 Complet</div>
+          <div class="slot-btn">13h45</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SIDEBAR RÉCAPITULATIF -->
+  <aside>
+    <div class="recap-card">
+      <div class="recap-header">Récapitulatif</div>
+      <div class="recap-body">
+        <div class="recap-items">
+          <div class="recap-item">
+            <div class="recap-item-thumb">🍔</div>
+            <div class="recap-item-info">
+              <div class="recap-item-name">The Classic Nömi ×1</div>
+              <div class="recap-item-sub">+ Bacon</div>
+            </div>
+            <span class="recap-item-price">14,40 €</span>
+          </div>
+          <div class="recap-item">
+            <div class="recap-item-thumb">🌶</div>
+            <div class="recap-item-info">
+              <div class="recap-item-name">Double Inferno ×2</div>
+              <div class="recap-item-sub">Bien cuit</div>
+            </div>
+            <span class="recap-item-price">31,80 €</span>
+          </div>
+          <div class="recap-item">
+            <div class="recap-item-thumb">🍟</div>
+            <div class="recap-item-info">
+              <div class="recap-item-name">Frites maison ×1</div>
+            </div>
+            <span class="recap-item-price">4,50 €</span>
+          </div>
+        </div>
+
+        <hr class="recap-sep" />
+        <div class="recap-line muted"><span>Sous-total</span><span>50,70 €</span></div>
+        <div class="recap-line muted"><span>Frais de livraison</span><span>2,90 €</span></div>
+        <hr class="recap-sep" />
+        <div class="recap-total">
+          <span>Total TTC</span>
+          <span class="total-amount">53,60 €</span>
+        </div>
+
+        <button class="btn-checkout">Continuer vers le paiement →</button>
+        <div class="secure-note">🔒 Paiement 100% sécurisé</div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- SÉPARATEUR: ÉCRAN PAIEMENT -->
+<div class="step-banner">
+  <span class="step-banner-badge">ÉTAPE SUIVANTE</span>
+  <span class="step-banner-label">Page Paiement — aperçu ci-dessous</span>
+</div>
+
+<div style="max-width:1100px; margin:32px auto; padding:0 24px;">
+  <div style="display:grid; grid-template-columns:1fr 380px; gap:24px;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">💳 Choisir votre mode de paiement</div>
+      </div>
+      <div class="card-body">
+        <div class="tabs">
+          <button class="tab-btn active">💳 Carte bancaire</button>
+          <button class="tab-btn">💵 Paiement à la remise</button>
+        </div>
+        <div class="form-grid">
+          <div class="form-group span-2">
+            <label>Numéro de carte</label>
+            <input type="text" placeholder="•••• •••• •••• ••••" />
+            <div class="input-hint">Visa, Mastercard, CB acceptés</div>
+          </div>
+          <div class="form-group">
+            <label>Date d'expiration</label>
+            <input type="text" placeholder="MM / AA" />
+          </div>
+          <div class="form-group">
+            <label>CVV</label>
+            <input type="text" placeholder="•••" />
+          </div>
+          <div class="form-group span-2">
+            <label>Nom sur la carte</label>
+            <input type="text" value="MARIE DUPONT" />
+          </div>
+        </div>
+        <div style="background:#22c55e15; border:1px solid #22c55e30; border-radius:8px; padding:12px 16px; font-size:.82rem; color:#22c55e; margin-top:16px; display:flex; align-items:center; gap:8px;">
+          🔒 Paiement sécurisé 3D Secure — vos données sont chiffrées et jamais stockées
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="recap-card">
+        <div class="recap-header">Votre commande</div>
+        <div class="recap-body">
+          <div class="recap-line muted"><span>3 articles</span><span>50,70 €</span></div>
+          <div class="recap-line muted"><span>Livraison</span><span>2,90 €</span></div>
+          <hr class="recap-sep" />
+          <div class="recap-total"><span>Total</span><span class="total-amount">53,60 €</span></div>
+          <button class="btn-checkout" style="margin-top:20px;">Payer 53,60 € →</button>
+          <div class="secure-note">🔒 Paiement sécurisé</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SÉPARATEUR: CONFIRMATION -->
+<div class="step-banner" style="margin-top:8px;">
+  <span class="step-banner-badge" style="background:#22c55e; color:#fff;">APRÈS PAIEMENT</span>
+  <span class="step-banner-label">Page de confirmation — aperçu ci-dessous</span>
+</div>
+
+<div class="confirmation">
+  <div class="conf-icon">🎉</div>
+  <div class="conf-title">Commande <span>confirmée</span> !</div>
+  <div class="conf-subtitle">Votre commande #NM-2026-0847 a bien été reçue. Vous allez recevoir un email de confirmation à marie@email.fr</div>
+  <div class="conf-card">
+    <div class="conf-row"><span>Numéro</span><span class="val">#NM-2026-0847</span></div>
+    <div class="conf-row"><span>Mode</span><span class="val">Livraison · 12 Rue de la Paix, Lyon</span></div>
+    <div class="conf-row"><span>Créneau</span><span class="val">Aujourd'hui 12h30</span></div>
+    <div class="conf-row"><span>Paiement</span><span class="val">CB •••• 4242 · <span style="color:#22c55e; font-weight:700;">Payé</span></span></div>
+    <div class="conf-row"><span>Total</span><span class="val" style="font-weight:900; color:#f5a623;">53,60 €</span></div>
+  </div>
+  <button class="btn-track">Suivre ma commande</button>
+</div>
+
+</body>
+</html>

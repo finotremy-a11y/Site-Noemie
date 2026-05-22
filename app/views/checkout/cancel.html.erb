@@ -1,0 +1,38 @@
+<div class="page-checkout-cancel">
+  <div class="cancel-container">
+    <div class="cancel-icon">✕</div>
+    <h1>Paiement annulé</h1>
+    <p class="cancel-subtitle">Votre paiement n'a pas été finalisé. Votre panier a été conservé.</p>
+
+    <% if @order %>
+      <div class="order-summary-card">
+        <div class="order-ref">
+          <span class="label">Référence commande</span>
+          <span class="value"><%= @order.order_number %></span>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="cancel-actions">
+      <% if @order.present? %>
+        <%= button_to "Réessayer le paiement", order_retry_payment_path(@order), method: :post, class: "btn-primary" %>
+      <% else %>
+        <%= link_to "Réessayer le paiement", checkout_path, class: "btn-primary" %>
+      <% end %>
+      <%= link_to "Retour au panier", cart_path, class: "btn-outline" %>
+    </div>
+  </div>
+</div>
+
+<style>
+.page-checkout-cancel { min-height: 70vh; display: flex; align-items: center; justify-content: center; background: #111; padding: 2rem; }
+.cancel-container { text-align: center; max-width: 480px; }
+.cancel-icon { width: 80px; height: 80px; background: #ef444422; border: 2px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #ef4444; margin: 0 auto 1.5rem; }
+.cancel-container h1 { font-size: 2rem; color: #f0ece4; margin-bottom: .75rem; }
+.cancel-subtitle { color: #888; margin-bottom: 2rem; line-height: 1.6; }
+.order-summary-card { background: #181818; border: 1px solid #222; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; text-align: left; }
+.order-ref { display: flex; justify-content: space-between; align-items: center; padding: .6rem 0; }
+.order-ref .label { color: #888; font-size: .9rem; }
+.order-ref .value { color: #f0ece4; font-weight: 500; }
+.cancel-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+</style>

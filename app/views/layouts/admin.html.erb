@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Admin | N&L Cuisinent" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="turbo-cache-control" content="no-cache">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    <style>
+      body.admin-shell { margin: 0; background: #111; color: #f0ece4; font-family: "Segoe UI", sans-serif; }
+      .admin-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 100vh; }
+      /* SIDEBAR */
+      .admin-sidebar { background: #0d0d0d; border-right: 1px solid #1e1e1e; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; overflow-y: auto; }
+      .admin-brand { font-size: 1.2rem; font-weight: 900; color: #b23a30; padding: 18px 20px; border-bottom: 1px solid #1e1e1e; }
+      .admin-brand span { color: #f0ece4; font-weight: 400; font-size: .75rem; padding-left: 4px; color: #2a2a2a; }
+      .admin-nav-section { padding: 16px 16px 5px; font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #2a2a2a; }
+      .admin-nav { display: flex; flex-direction: column; gap: 2px; padding: 4px 10px; }
+      .admin-nav a { color: #555; text-decoration: none; padding: .55rem .75rem; border-radius: 8px; font-size: .87rem; display: flex; align-items: center; gap: 9px; font-weight: 500; }
+      .admin-nav a:hover { background: #181818; color: #888; }
+      .admin-nav a.active { background: #b23a3015; color: #b23a30; font-weight: 700; }
+      .nav-icon { font-size: .95rem; width: 18px; text-align: center; flex-shrink: 0; }
+      .nav-badge { margin-left: auto; background: #ef4444; color: #fff; font-size: .62rem; font-weight: 800; border-radius: 10px; padding: 2px 6px; min-width: 18px; text-align: center; }
+      .sidebar-user { padding: 14px 16px; border-top: 1px solid #1e1e1e; margin-top: auto; display: flex; align-items: center; gap: 10px; }
+      .user-avatar { width: 32px; height: 32px; background: #b23a3015; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .85rem; font-weight: 800; color: #b23a30; border: 1px solid #b23a3030; flex-shrink: 0; }
+      .user-info .user-name { font-size: .82rem; font-weight: 700; color: #888; }
+      .user-info .user-role { font-size: .7rem; color: #333; }
+      /* TOPBAR */
+      .admin-main { padding: 0; }
+      .admin-topbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0 28px; height: 58px; background: #151515; border-bottom: 1px solid #1e1e1e; position: sticky; top: 0; z-index: 40; }
+      .admin-topbar h1 { margin: 0; font-size: 1.05rem; font-weight: 800; color: #f0ece4; }
+      .admin-topbar p { display: none; }
+      .admin-topbar-right { display: flex; align-items: center; gap: 14px; }
+      .admin-user { color: #555; font-size: .82rem; }
+      .live-badge { display: flex; align-items: center; gap: 6px; background: #22c55e15; border: 1px solid #22c55e30; border-radius: 20px; padding: 4px 11px; font-size: .73rem; font-weight: 700; color: #22c55e; }
+      .live-dot { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; animation: pulse 1.8s infinite; flex-shrink: 0; }
+      @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+      .admin-main-inner { padding: 24px 28px 32px; }
+      .admin-flash { margin-bottom: 1rem; padding: .9rem 1rem; border-radius: 10px; border: 1px solid #2b2b2b; background: #181818; }
+      /* GRID / CARDS */
+      .admin-grid { display: grid; gap: 1rem; }
+      .admin-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .admin-card { background: #181818; border: 1px solid #222; border-radius: 14px; padding: 1.2rem; }
+      .admin-card h2, .admin-card h3 { margin-top: 0; }
+      .admin-kpi-value { font-size: 1.8rem; font-weight: 800; color: #b23a30; margin: .4rem 0; }
+      .admin-kpi-label { color: #9f9a90; font-size: .85rem; }
+      .admin-section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+      .admin-section-title h2 { margin: 0; font-size: 1.05rem; }
+      .admin-table { width: 100%; border-collapse: collapse; }
+      .admin-table th, .admin-table td { padding: .9rem .8rem; border-bottom: 1px solid #232323; text-align: left; font-size: .9rem; vertical-align: top; }
+      .admin-table th { color: #8d877e; font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; }
+      .admin-table tr:last-child td { border-bottom: none; }
+      .status-chip { display: inline-flex; padding: .25rem .65rem; border-radius: 999px; font-size: .78rem; font-weight: 700; background: #2b2b2b; color: #f0ece4; }
+      .status-chip.pending, .status-chip.pending_payment, .status-chip.new { background: #b23a3022; color: #b23a30; }
+      .status-chip.confirmed, .status-chip.completed, .status-chip.issued, .status-chip.approved, .status-chip.processed { background: #22c55e22; color: #22c55e; }
+      .status-chip.preparing, .status-chip.in_progress { background: #3b82f622; color: #60a5fa; }
+      .status-chip.ready { background: #a855f722; color: #c084fc; }
+      .status-chip.cancelled, .status-chip.rejected, .status-chip.refunded, .status-chip.hidden { background: #ef444422; color: #ef4444; }
+      .status-chip.draft { background: #2f2f2f; color: #9f9a90; }
+      .admin-meta { color: #8d877e; font-size: .84rem; }
+      .admin-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+      .admin-pill-link { color: #b23a30; text-decoration: none; font-size: .85rem; }
+      .admin-inline-actions { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; }
+      .admin-pill-btn {
+        border: 1px solid #3a2a10;
+        background: #1b1b1b;
+        color: #b23a30;
+        border-radius: 999px;
+        padding: .2rem .55rem;
+        font-size: .75rem;
+        line-height: 1.2;
+        cursor: pointer;
+      }
+      .admin-pill-btn:hover { border-color: #b23a30; }
+      .admin-split { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; }
+      .admin-form { display: grid; gap: .85rem; }
+      .admin-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .85rem; }
+      .admin-field { display: grid; gap: .35rem; }
+      .admin-field label { font-size: .84rem; color: #9f9a90; }
+      .admin-input { width: 100%; background: #121212; color: #f0ece4; border: 1px solid #2a2a2a; border-radius: 10px; padding: .65rem .75rem; }
+      .admin-checkbox { display: flex; align-items: center; gap: .45rem; }
+      .admin-btn { border: 1px solid #b23a30; color: #111; background: #b23a30; padding: .55rem .9rem; border-radius: 10px; font-weight: 700; cursor: pointer; }
+      .admin-btn-danger { background: #7f1d1d; border-color: #ef4444; color: #fff; }
+      .admin-pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-size: .85rem; background: #101010; border: 1px solid #252525; border-radius: 10px; padding: .8rem; }
+      /* DASHBOARD MOCKUP COMPONENTS */
+      .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; }
+      .kpi-card { background: #181818; border: 1px solid #222; border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; gap: 5px; }
+      .kpi-header { display: flex; align-items: center; justify-content: space-between; }
+      .kpi-icon { font-size: 1.1rem; }
+      .kpi-trend { font-size: .7rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
+      .trend-up { background: #22c55e20; color: #22c55e; }
+      .trend-warn { background: #b23a3020; color: #b23a30; }
+      .trend-neutral { background: #3b82f620; color: #60a5fa; }
+      .kpi-value { font-size: 1.7rem; font-weight: 900; letter-spacing: -1px; color: #f0ece4; }
+      .kpi-label { font-size: .77rem; color: #555; font-weight: 500; }
+      .kpi-sub { font-size: .73rem; color: #333; }
+      .dash-two-col { display: grid; grid-template-columns: 1fr 340px; gap: 18px; margin-bottom: 20px; }
+      .dash-three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+      .dash-card { background: #181818; border: 1px solid #222; border-radius: 14px; overflow: hidden; }
+      .dash-card-header { padding: 14px 18px; border-bottom: 1px solid #1e1e1e; display: flex; align-items: center; justify-content: space-between; }
+      .dash-card-title { font-size: .92rem; font-weight: 800; color: #f0ece4; display: flex; align-items: center; gap: 7px; }
+      .dash-card-action { font-size: .8rem; color: #b23a30; text-decoration: none; font-weight: 600; }
+      .dash-card-action:hover { color: #c24a3f; }
+      .filter-tabs { display: flex; gap: 4px; padding: 10px 16px; border-bottom: 1px solid #1e1e1e; flex-wrap: wrap; }
+      .filter-tab { padding: 4px 12px; border-radius: 20px; font-size: .76rem; font-weight: 700; cursor: pointer; border: 1px solid #2a2a2a; background: #111; color: #555; text-decoration: none; }
+      .filter-tab:hover { color: #888; }
+      .filter-tab.active { background: #b23a30; color: #111; border-color: #b23a30; }
+      .orders-table { width: 100%; border-collapse: collapse; }
+      .orders-table th { text-align: left; padding: 9px 14px; font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: #333; border-bottom: 1px solid #1e1e1e; background: #141414; }
+      .orders-table td { padding: 11px 14px; font-size: .83rem; border-bottom: 1px solid #1a1a1a; vertical-align: middle; color: #f0ece4; }
+      .orders-table tr:last-child td { border-bottom: none; }
+      .orders-table tr:hover td { background: #141414; }
+      .order-id { font-weight: 800; }
+      .status-pill { padding: 3px 9px; border-radius: 20px; font-size: .7rem; font-weight: 800; white-space: nowrap; display: inline-block; }
+      .pill-new, .pill-pending_payment { background: #b23a3020; color: #b23a30; }
+      .pill-preparing, .pill-in_progress { background: #3b82f620; color: #60a5fa; }
+      .pill-ready { background: #22c55e20; color: #22c55e; }
+      .pill-delivering { background: #a855f720; color: #c084fc; }
+      .pill-completed, .pill-confirmed { background: #1e1e1e; color: #555; }
+      .pill-cancelled { background: #ef444420; color: #ef4444; }
+      .action-btns { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+      .btn-sm { padding: 4px 10px; border-radius: 6px; font-size: .73rem; font-weight: 700; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; }
+      .btn-sm form { display: contents; }
+      .btn-sm-primary { background: #b23a30; color: #111; }
+      .btn-sm-primary:hover { background: #c24a3f; }
+      .btn-sm-outline { background: #1e1e1e; color: #666; border: 1px solid #2a2a2a; }
+      .btn-sm-outline:hover { color: #999; }
+      .btn-sm-danger { background: #ef444420; color: #ef4444; border: 1px solid #ef444430; }
+      .ca-chart { padding: 18px 20px; }
+      .ca-bars { display: flex; align-items: flex-end; gap: 4px; height: 72px; margin: 12px 0 6px; }
+      .bar { flex: 1; background: #222; border-radius: 3px 3px 0 0; min-height: 3px; transition: background .2s; }
+      .bar.today { background: #b23a30; }
+      .bar-labels { display: flex; gap: 4px; }
+      .bar-label { flex: 1; text-align: center; font-size: .6rem; color: #333; }
+      .bar-label.today { color: #b23a30; font-weight: 700; }
+      .ca-total-val { font-size: 1.7rem; font-weight: 900; letter-spacing: -1px; color: #f0ece4; }
+      .ca-sub { font-size: .77rem; color: #444; }
+      .devis-row { padding: 12px 18px; border-bottom: 1px solid #1a1a1a; }
+      .devis-row:last-child { border-bottom: none; }
+      .devis-row:hover { background: #141414; }
+      .devis-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
+      .devis-id { font-size: .75rem; font-weight: 800; color: #444; }
+      .devis-status { padding: 2px 8px; border-radius: 20px; font-size: .68rem; font-weight: 800; }
+      .ds-new { background: #b23a3020; color: #b23a30; }
+      .devis-name { font-size: .87rem; font-weight: 700; color: #f0ece4; margin-bottom: 2px; }
+      .devis-meta { font-size: .73rem; color: #444; }
+      .product-row-dash { display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-bottom: 1px solid #1a1a1a; }
+      .product-row-dash:last-child { border-bottom: none; }
+      .product-row-dash:hover { background: #141414; }
+      .product-thumb { width: 36px; height: 36px; background: linear-gradient(135deg, #2a1500, #1a0e00); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+      .product-name-dash { font-size: .85rem; font-weight: 700; color: #f0ece4; }
+      .product-cat-dash { font-size: .7rem; color: #444; }
+      .product-price-dash { font-size: .88rem; font-weight: 800; color: #b23a30; margin-left: auto; }
+      .avail-on { color: #22c55e; font-size: .72rem; font-weight: 700; }
+      .avail-off { color: #ef4444; font-size: .72rem; font-weight: 700; }
+      .review-row { padding: 12px 18px; border-bottom: 1px solid #1a1a1a; }
+      .review-row:last-child { border-bottom: none; }
+      .review-comment { font-size: .82rem; color: #888; margin: 4px 0 8px; font-style: italic; }
+      .review-author { font-size: .7rem; color: #444; margin-bottom: 6px; }
+      .invoice-row { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 10px; padding: 10px 18px; border-bottom: 1px solid #1a1a1a; }
+      .invoice-row:last-child { border-bottom: none; }
+      .invoice-row:hover { background: #141414; }
+      .invoice-num { font-size: .83rem; font-weight: 700; color: #f0ece4; }
+      .invoice-client { font-size: .82rem; color: #555; }
+      .invoice-amount { font-size: .83rem; font-weight: 800; color: #b23a30; text-align: right; }
+      @media (max-width: 960px) {
+        .admin-layout { grid-template-columns: 1fr; }
+        .admin-sidebar { position: static; height: auto; }
+        .admin-kpis, .admin-split, .kpi-grid, .dash-two-col, .dash-three-col { grid-template-columns: 1fr; }
+        .admin-form-grid { grid-template-columns: 1fr; }
+        .admin-main-inner { padding: 1rem; }
+      }
+    </style>
+  </head>
+
+  <body class="admin-shell">
+    <div class="admin-layout">
+      <aside class="admin-sidebar">
+        <div class="admin-brand">N&L <span>Admin</span></div>
+        <div class="admin-nav-section">Vue d'ensemble</div>
+        <nav class="admin-nav">
+          <%= link_to admin_root_path, class: "#{current_page?(admin_root_path) || current_page?(admin_dashboard_path) ? 'active' : ''}" do %>
+            <span class="nav-icon">📊</span> Dashboard
+          <% end %>
+          <%= link_to admin_orders_path, class: "#{current_page?(admin_orders_path) ? 'active' : ''}" do %>
+            <span class="nav-icon">📦</span> Commandes
+            <% if @sidebar_pending_orders.to_i > 0 %><span class="nav-badge"><%= @sidebar_pending_orders %></span><% end %>
+          <% end %>
+          <%= link_to admin_products_path, class: "#{current_page?(admin_products_path) ? 'active' : ''}" do %>
+            <span class="nav-icon">🍔</span> Produits
+          <% end %>
+          <%= link_to admin_quotes_path, class: "#{current_page?(admin_quotes_path) ? 'active' : ''}" do %>
+            <span class="nav-icon">🎪</span> Devis
+            <% if @sidebar_pending_quotes.to_i > 0 %><span class="nav-badge"><%= @sidebar_pending_quotes %></span><% end %>
+          <% end %>
+          <%= link_to admin_invoices_path, class: "#{current_page?(admin_invoices_path) ? 'active' : ''}" do %>
+            <span class="nav-icon">🧾</span> Factures
+          <% end %>
+        </nav>
+        <div class="admin-nav-section">Clients</div>
+        <nav class="admin-nav">
+          <%= link_to admin_reviews_path, class: "#{current_page?(admin_reviews_path) ? 'active' : ''}" do %>
+            <span class="nav-icon">⭐</span> Avis
+            <% if @sidebar_pending_reviews.to_i > 0 %><span class="nav-badge nav-badge-orange" style="background:#b23a3030;color:#b23a30;"><%= @sidebar_pending_reviews %></span><% end %>
+          <% end %>
+        </nav>
+        <div class="admin-nav-section">Système</div>
+        <nav class="admin-nav">
+          <%= link_to admin_business_settings_path, class: "#{current_page?(admin_business_settings_path) ? 'active' : ''}" do %>
+            <span class="nav-icon">⚙️</span> Parametres metier
+          <% end %>
+          <%= link_to admin_audit_logs_path, class: "#{current_page?(admin_audit_logs_path) ? 'active' : ''}" do %>
+            <span class="nav-icon">🔍</span> Audit
+          <% end %>
+          <%= link_to root_path do %>
+            <span class="nav-icon">↩</span> Retour site
+          <% end %>
+        </nav>
+        <div class="sidebar-user">
+          <div class="user-avatar"><%= current_user.email.first.upcase %></div>
+          <div class="user-info">
+            <div class="user-name">Noémie</div>
+            <div class="user-role">Administratrice</div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="admin-main">
+        <div class="admin-topbar">
+          <div>
+            <h1><%= content_for(:page_title) || "Administration" %></h1>
+          </div>
+          <div class="admin-topbar-right">
+            <div class="live-badge"><div class="live-dot"></div>En ligne</div>
+            <div class="admin-user"><%= current_user.email %></div>
+          </div>
+        </div>
+
+        <div class="admin-main-inner">
+          <% if notice %>
+            <div class="admin-flash"><%= notice %></div>
+          <% end %>
+          <% if alert %>
+            <div class="admin-flash"><%= alert %></div>
+          <% end %>
+
+          <%= yield %>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

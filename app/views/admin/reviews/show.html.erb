@@ -1,0 +1,51 @@
+<% content_for :page_title, "Avis ##{@review.id}" %>
+
+<div class="admin-grid">
+  <section class="admin-card">
+    <div class="admin-section-title">
+      <h2>Detail avis</h2>
+      <%= link_to "Retour", admin_reviews_path, class: "admin-pill-link" %>
+    </div>
+
+    <div class="admin-grid admin-form-grid">
+      <div>
+        <div class="admin-meta">Auteur</div>
+        <strong><%= @review.user&.email || "Anonyme" %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Note</div>
+        <strong><%= @review.rating %>/5</strong>
+      </div>
+      <div>
+        <div class="admin-meta">Commande</div>
+        <strong><%= @review.order&.order_number || "-" %></strong>
+      </div>
+      <div>
+        <div class="admin-meta">Signalements</div>
+        <strong><%= @review.report_count %></strong>
+      </div>
+    </div>
+
+    <div style="margin-top: 1rem;">
+      <div class="admin-meta">Commentaire</div>
+      <p><%= @review.comment.presence || "Aucun commentaire." %></p>
+    </div>
+
+    <p class="admin-meta">Cree le <%= l(@review.created_at, format: :short) %></p>
+  </section>
+
+  <section class="admin-card">
+    <h2>Moderation</h2>
+    <%= form_with model: @review, url: status_admin_review_path(@review), method: :patch, class: "admin-form" do |f| %>
+      <div class="admin-field">
+        <%= f.label :status, "Nouveau statut" %>
+        <%= f.select :status, options_for_select(Review::STATUSES.map { |s| [s.humanize, s] }, @review.status), {}, class: "admin-input" %>
+      </div>
+      <%= f.submit "Mettre a jour", class: "admin-btn" %>
+    <% end %>
+
+    <div style="margin-top: 1rem;">
+      <span class="status-chip <%= @review.status %>"><%= @review.status.humanize %></span>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Paiement confirmé</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; color: #222; }
+    .email-wrapper { max-width: 600px; margin: 0 auto; }
+    .email-header { background: #111; padding: 32px 40px; border-radius: 12px 12px 0 0; text-align: center; }
+    .brand { font-size: 1.6rem; font-weight: 700; color: #b23a30; }
+    .email-body { background: #fff; padding: 40px; border-left: 1px solid #e5e5e5; border-right: 1px solid #e5e5e5; }
+    .success-icon { width: 64px; height: 64px; background: #22c55e22; border: 2px solid #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: #22c55e; margin: 0 auto 16px; text-align:center; line-height:64px; }
+    .amount { font-size: 2rem; font-weight: 700; color: #22c55e; text-align: center; margin: 16px 0; }
+    .order-box { background: #f9f9f9; border: 1px solid #e5e5e5; border-radius: 10px; padding: 20px; margin: 20px 0; }
+    .order-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: .9rem; border-bottom: 1px solid #eee; }
+    .order-row:last-child { border-bottom: none; }
+    .order-row .key { color: #666; }
+    .email-footer { background: #111; color: #666; padding: 24px 40px; border-radius: 0 0 12px 12px; text-align: center; font-size: .85rem; }
+    .email-footer a { color: #b23a30; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-header">
+      <div class="brand">N&L Cuisinent</div>
+      <p style="margin-top:8px; color:#aaa; font-size:.95rem;">Paiement reçu ✓</p>
+    </div>
+    <div class="email-body">
+      <div class="success-icon">✓</div>
+
+      <p style="text-align:center; color:#666;">Votre paiement a bien été enregistré</p>
+      <div class="amount"><%= number_to_currency(@order.total_cents / 100.0, unit: "€", format: "%n %u") %></div>
+
+      <div class="order-box">
+        <div class="order-row">
+          <span class="key">Commande</span>
+          <span><strong><%= @order.order_number %></strong></span>
+        </div>
+        <div class="order-row">
+          <span class="key">Date</span>
+          <span><%= Time.current.strftime("%d/%m/%Y à %H:%M") %></span>
+        </div>
+        <div class="order-row">
+          <span class="key">Mode</span>
+          <span><%= @order.service_mode == "delivery" ? "Livraison" : "Retrait sur place" %></span>
+        </div>
+      </div>
+
+      <p style="color:#666; font-size:.9rem; text-align:center;">Votre facture vous sera envoyée séparément dans quelques instants.</p>
+    </div>
+    <div class="email-footer">
+      <p>N&L Cuisinent &mdash; <a href="#">nlcuisinent.fr</a></p>
+    </div>
+  </div>
+</body>
+</html>

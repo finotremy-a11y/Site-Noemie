@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mise à jour de commande</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; color: #222; }
+    .email-wrapper { max-width: 600px; margin: 0 auto; }
+    .email-header { background: #111; color: #f0ece4; padding: 32px 40px; border-radius: 12px 12px 0 0; text-align: center; }
+    .brand { font-size: 1.6rem; font-weight: 700; color: #b23a30; }
+    .email-body { background: #fff; padding: 40px; border-left: 1px solid #e5e5e5; border-right: 1px solid #e5e5e5; }
+    .status-badge { display: inline-block; background: #b23a3022; color: #b23a30; border: 1px solid #b23a3066; border-radius: 20px; padding: 8px 20px; font-size: 1rem; font-weight: 700; margin: 16px 0; }
+    .order-ref { color: #666; font-size: .9rem; margin-bottom: 24px; }
+    .order-ref strong { color: #111; }
+    .cta { text-align: center; margin: 28px 0; }
+    .btn { background: #111; color: #f0ece4; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; }
+    .email-footer { background: #111; color: #666; padding: 24px 40px; border-radius: 0 0 12px 12px; text-align: center; font-size: .85rem; }
+    .email-footer a { color: #b23a30; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-header">
+      <div class="brand">N&L Cuisinent</div>
+      <p style="margin-top:8px; color:#aaa; font-size:.95rem;">Mise à jour de votre commande</p>
+    </div>
+    <div class="email-body">
+      <p>Bonjour <strong><%= [@customer&.first_name, @customer&.last_name].compact.join(" ").presence || @customer&.email&.split("@")&.first&.capitalize || "cher client" %></strong>,</p>
+      <p>Le statut de votre commande a été mis à jour :</p>
+
+      <div style="text-align:center">
+        <span class="status-badge"><%= @new_status %></span>
+      </div>
+
+      <div class="order-ref">
+        Commande <strong><%= @order.order_number %></strong> &mdash; <%= @order.created_at.strftime("%d/%m/%Y") %>
+      </div>
+
+      <div class="cta">
+        <a href="<%= Rails.application.routes.url_helpers.me_orders_url(host: ENV.fetch("APP_HOST", "nlcuisinent.fr")) %>" class="btn">
+          Suivre ma commande
+        </a>
+      </div>
+
+      <p style="color:#666; font-size:.9rem;">Si vous avez des questions, contactez-nous à <a href="mailto:contact@nlcuisinent.fr" style="color:#b23a30;">contact@nlcuisinent.fr</a></p>
+    </div>
+    <div class="email-footer">
+      <p>N&L Cuisinent &mdash; <a href="#">nlcuisinent.fr</a></p>
+    </div>
+  </div>
+</body>
+</html>
+

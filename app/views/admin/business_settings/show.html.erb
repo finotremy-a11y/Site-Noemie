@@ -1,0 +1,49 @@
+<% content_for :page_title, "Parametres metier" %>
+
+<div class="admin-card">
+  <div class="admin-section-title">
+    <h2>Livraison et commande</h2>
+    <span class="admin-meta">Configuration appliquee au checkout et a la creation de commande</span>
+  </div>
+
+  <%= form_with model: @business_setting,
+                url: admin_business_settings_path,
+                method: :patch,
+                class: "admin-form" do |f| %>
+    <div class="admin-form-grid">
+      <div class="admin-field">
+        <%= f.label :delivery_min_order_cents, "Minimum commande livraison (centimes)" %>
+        <%= f.number_field :delivery_min_order_cents, class: "admin-input", min: 0, step: 50 %>
+      </div>
+
+      <div class="admin-field">
+        <%= f.label :vat_rate, "Taux TVA (ex: 0.2)" %>
+        <%= f.number_field :vat_rate, class: "admin-input", min: 0, max: 0.99, step: 0.01 %>
+      </div>
+
+      <div class="admin-field">
+        <%= f.label :tier_one_max_km, "Palier 1: distance max (km)" %>
+        <%= f.number_field :tier_one_max_km, class: "admin-input", min: 0.1, step: 0.1 %>
+      </div>
+
+      <div class="admin-field">
+        <%= f.label :tier_one_fee_cents, "Palier 1: frais livraison (centimes)" %>
+        <%= f.number_field :tier_one_fee_cents, class: "admin-input", min: 0, step: 50 %>
+      </div>
+
+      <div class="admin-field">
+        <%= f.label :tier_two_max_km, "Palier 2: distance max (km)" %>
+        <%= f.number_field :tier_two_max_km, class: "admin-input", min: 0.1, step: 0.1 %>
+      </div>
+
+      <div class="admin-field">
+        <%= f.label :tier_two_fee_cents, "Palier 2: frais livraison (centimes)" %>
+        <%= f.number_field :tier_two_fee_cents, class: "admin-input", min: 0, step: 50 %>
+      </div>
+    </div>
+
+    <div class="admin-actions">
+      <%= f.submit "Enregistrer", class: "admin-btn" %>
+    </div>
+  <% end %>
+</div>

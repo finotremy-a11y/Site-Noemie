@@ -1,0 +1,27 @@
+<section class="hero hero-bleed hero-neon-frame <%= @hero_media_url.present? ? 'hero-with-media' : '' %> <%= @hero_media_mode == 'slider' ? 'hero-slider-mode' : 'hero-fixed-mode' %>"
+  <% if @hero_media_url.present? %>style="--hero-media-url: url('<%= @hero_media_url %>')"<% end %>>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="eyebrow">Food truck premium</p>
+    <h1>Des burgers qui changent tout.</h1>
+    <p class="hero-text">Produits frais, préparation minute, retrait ou livraison. Commandez en moins de 2 minutes depuis votre mobile.</p>
+    <div class="hero-ctas">
+      <a href="<%= checkout_path %>" class="cta-main">Commander maintenant</a>
+      <a href="<%= catalog_path %>" class="cta-secondary">Voir la carte</a>
+    </div>
+    <div class="hero-proof">
+      <span class="hero-proof-item">Preparation immediate</span>
+      <span class="hero-proof-item">Paiement securise Stripe</span>
+      <span class="hero-proof-item">Retrait ou livraison</span>
+    </div>
+  </div>
+</section>
+
+<section id="events" class="section">
+  <h2>Événements & Prestations</h2>
+  <p>Anniversaires, entreprises, festivals ou privatisations: découvrez nos formules événementielles et demandez un devis en quelques minutes.</p>
+  <div class="hero-ctas events-ctas">
+    <a href="<%= contact_path %>" class="cta-main">Demander un devis</a>
+    <a href="<%= catalog_path %>" class="cta-secondary">Voir nos menus</a>
+  </div>
+</section>

@@ -1,0 +1,102 @@
+<div class="page-reviews" data-controller="reviews">
+  <section class="section-header">
+    <h1>Avis Clients</h1>
+    <p>Découvrez ce que pensent nos clients</p>
+  </section>
+
+  <div class="reviews-container">
+    <div class="reviews-main">
+      <!-- Statistiques -->
+      <div class="reviews-stats">
+        <div class="stat-card">
+          <span class="stat-value"><%= @average_rating || "4.8" %>/5</span>
+          <span class="stat-label">Note moyenne</span>
+          <div class="stars">
+            ⭐⭐⭐⭐⭐
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-value"><%= @total_reviews || "100+" %></span>
+          <span class="stat-label">Avis vérifiés</span>
+        </div>
+      </div>
+
+      <!-- Bouton ajouter avis (si connecté et a commandé) -->
+      <% if current_user %>
+        <%= link_to "+ Écrire un avis", new_review_path, class: "btn-primary btn-block" %>
+      <% else %>
+        <div class="auth-prompt">
+          <p>Vous a avez essayé N&L Cuisinent?</p>
+          <%= link_to "Connectez-vous pour laisser un avis", login_path, class: "btn-secondary" %>
+        </div>
+      <% end %>
+
+      <!-- Liste des avis -->
+      <div class="reviews-list">
+        <% if @reviews&.any? %>
+          <% @reviews.each do |review| %>
+            <div class="review-item">
+              <div class="review-header">
+                <div class="review-author">
+                  <strong><%= review.user&.full_name.presence || [review.user&.first_name, review.user&.last_name].compact.join(" ").presence || "Client vérifié" %></strong>
+                  <span class="review-date"><%= l(review.created_at, format: :short) %></span>
+                </div>
+                <div class="review-rating">
+                  <% review.rating.times do %>⭐<% end %>
+                </div>
+              </div>
+
+              <p class="review-text"><%= simple_format(review.comment) %></p>
+
+              <div class="review-actions">
+                <% if current_user&.id == review.user_id %>
+                  <%= link_to "Modifier", edit_review_path(review), class: "btn-small" %>
+                  <%= link_to "Supprimer", review_path(review), data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr ?" }, class: "btn-small btn-danger" %>
+                <% end %>
+                
+                <button class="btn-small-outline" data-action="reviews#flagReview" data-review-id="<%= review.id %>">
+                  🚩 Signaler
+                </button>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="empty-state">
+            <p>Aucun avis pour le moment.</p>
+            <p>Soyez le premier à laisser un avis!</p>
+          </div>
+        <% end %>
+      </div>
+
+    </div>
+
+    <!-- Sidebar filtres/stats -->
+    <aside class="reviews-sidebar">
+      <h3>Filtrer par</h3>
+      
+      <div class="filter-group">
+        <label for="filter-rating">Note minimale</label>
+        <select id="filter-rating" data-action="reviews#filterByRating">
+          <option value="">Toutes les notes</option>
+          <option value="5">⭐⭐⭐⭐⭐ 5 étoiles</option>
+          <option value="4">⭐⭐⭐⭐ 4+ étoiles</option>
+          <option value="3">⭐⭐⭐ 3+ étoiles</option>
+          <option value="1">⭐ 1+ étoile</option>
+        </select>
+      </div>
+
+      <div class="breakdown">
+        <h4>Répartition</h4>
+        <% (5..1).each do |rating| %>
+          <div class="breakdown-item">
+            <span><%= "⭐" * rating %></span>
+            <div class="bar">
+              <div class="fill" style="width: <%= @total_reviews.to_i.zero? ? 0 : ((@reviews.count { |review| review.rating == rating }.to_f / @total_reviews) * 100).round %>%"></div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </aside>
+  </div>
+</div>

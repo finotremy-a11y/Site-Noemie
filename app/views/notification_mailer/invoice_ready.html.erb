@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Votre facture</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; color: #222; }
+    .email-wrapper { max-width: 600px; margin: 0 auto; }
+    .email-header { background: #111; padding: 32px 40px; border-radius: 12px 12px 0 0; text-align: center; }
+    .brand { font-size: 1.6rem; font-weight: 700; color: #b23a30; }
+    .email-body { background: #fff; padding: 40px; border-left: 1px solid #e5e5e5; border-right: 1px solid #e5e5e5; }
+    .invoice-badge { background: #b23a3011; border: 1px solid #b23a3044; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; }
+    .invoice-badge strong { color: #b23a30; font-size: 1.1rem; }
+    .invoice-badge span { color: #666; font-size: .85rem; display: block; margin-top: 4px; }
+    .cta { text-align: center; margin: 28px 0; }
+    .btn { background: #111; color: #f0ece4; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; }
+    .email-footer { background: #111; color: #666; padding: 24px 40px; border-radius: 0 0 12px 12px; text-align: center; font-size: .85rem; }
+    .email-footer a { color: #b23a30; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-header">
+      <div class="brand">N&L Cuisinent</div>
+      <p style="margin-top:8px; color:#aaa; font-size:.95rem;">Votre facture est disponible</p>
+    </div>
+    <div class="email-body">
+      <p>Bonjour,</p>
+      <p>Votre facture pour la commande <strong><%= @order.order_number %></strong> est disponible :</p>
+
+      <div class="invoice-badge">
+        <strong>Facture <%= @invoice.invoice_number %></strong>
+        <span>Émise le <%= @invoice.issued_at&.strftime("%d/%m/%Y") || Time.current.strftime("%d/%m/%Y") %></span>
+        <span>Montant : <strong><%= number_to_currency(@order.total_cents / 100.0, unit: "€", format: "%n %u") %></strong></span>
+      </div>
+
+      <% if @invoice.pdf_url.present? %>
+        <div class="cta">
+          <a href="<%= @invoice.pdf_url %>" class="btn">Télécharger la facture PDF</a>
+        </div>
+      <% else %>
+        <div class="cta">
+          <a href="<%= Rails.application.routes.url_helpers.me_orders_url(host: ENV.fetch("APP_HOST", "nlcuisinent.fr")) %>" class="btn">
+            Accéder à mon espace client
+          </a>
+        </div>
+      <% end %>
+
+      <p style="color:#888; font-size:.85rem;">Conservez cet email et votre facture comme justificatif de paiement.</p>
+    </div>
+    <div class="email-footer">
+      <p>N&L Cuisinent &mdash; <a href="#">nlcuisinent.fr</a></p>
+      <p style="margin-top:6px;"><a href="mailto:contact@nlcuisinent.fr">contact@nlcuisinent.fr</a></p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<% content_for :page_title, "Avis" %>
+
+<div class="admin-card">
+  <div class="admin-section-title">
+    <h2>Modération des avis</h2>
+    <div class="admin-actions">
+      <%= link_to "Réinitialiser", admin_reviews_path, class: "admin-pill-link" %>
+    </div>
+  </div>
+
+  <%= form_with url: bulk_status_admin_reviews_path, method: :patch, local: true, id: "bulk-reviews-form", class: "admin-form admin-form-grid", style: "margin-bottom:1rem;" do %>
+    <div class="admin-field">
+      <label>Action en masse</label>
+      <%= select_tag "bulk[status]", options_for_select([["Choisir un statut", ""]] + Review::STATUSES.map { |s| [s.humanize, s] }), class: "admin-input" %>
+    </div>
+    <div class="admin-actions">
+      <%= submit_tag "Appliquer aux avis sélectionnés", class: "admin-btn" %>
+    </div>
+  <% end %>
+
+  <%= form_with url: admin_reviews_path, method: :get, local: true, class: "admin-form admin-form-grid", style: "margin-bottom:1rem;" do %>
+    <div class="admin-field">
+      <label>Recherche</label>
+      <%= text_field_tag :q, @filters[:q], class: "admin-input", placeholder: "Commentaire" %>
+    </div>
+    <div class="admin-field">
+      <label>Statut</label>
+      <%= select_tag :status, options_for_select([["Tous", ""]] + Review::STATUSES.map { |s| [s.humanize, s] }, @filters[:status]), class: "admin-input" %>
+    </div>
+    <div class="admin-field">
+      <label>Note minimum</label>
+      <%= select_tag :min_rating, options_for_select([["Aucune", ""], ["1", 1], ["2", 2], ["3", 3], ["4", 4], ["5", 5]], @filters[:min_rating]), class: "admin-input" %>
+    </div>
+    <div class="admin-field">
+      <label>Du</label>
+      <%= date_field_tag :date_from, @filters[:date_from], class: "admin-input" %>
+    </div>
+    <div class="admin-field">
+      <label>Au</label>
+      <%= date_field_tag :date_to, @filters[:date_to], class: "admin-input" %>
+    </div>
+    <div class="admin-actions">
+      <%= submit_tag "Filtrer", class: "admin-btn" %>
+    </div>
+  <% end %>
+
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Auteur</th>
+        <th><%= link_to "Note#{sort_indicator('rating')}", admin_reviews_path(sort_params_for('rating')), class: "admin-pill-link" %></th>
+        <th>Commentaire</th>
+        <th><%= link_to "Statut#{sort_indicator('status')}", admin_reviews_path(sort_params_for('status')), class: "admin-pill-link" %></th>
+        <th><%= link_to "Date#{sort_indicator('created_at')}", admin_reviews_path(sort_params_for('created_at')), class: "admin-pill-link" %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @reviews.each do |review| %>
+        <tr>
+          <td><%= check_box_tag "review_ids[]", review.id, false, form: "bulk-reviews-form" %></td>
+          <td><%= review.user&.email || "Anonyme" %></td>
+          <td><%= review.rating %>/5</td>
+          <td><%= truncate(review.comment, length: 100) %></td>
+          <td><span class="status-chip <%= review.status %>"><%= review.status.humanize %></span></td>
+          <td><%= l(review.created_at, format: :short) %></td>
+          <td>
+            <div class="admin-inline-actions">
+              <%= link_to "Moderer", admin_review_path(review), class: "admin-pill-link" %>
+              <% (Review::STATUSES - [review.status]).each do |next_status| %>
+                <%= button_to next_status.humanize,
+                              status_admin_review_path(review),
+                              method: :patch,
+                              params: { review: { status: next_status } },
+                              class: "admin-pill-btn" %>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="admin-section-title" style="margin-top:1rem;">
+    <div class="admin-meta">
+      <%= @pagination[:total_count] %> résultat(s) · page <%= @pagination[:page] %>/<%= @pagination[:total_pages] %>
+    </div>
+    <div class="admin-actions">
+      <% query = request.query_parameters.except("page") %>
+      <% if @pagination[:page] > 1 %>
+        <%= link_to "Précédent", admin_reviews_path(query.merge(page: @pagination[:page] - 1)), class: "admin-pill-link" %>
+      <% end %>
+      <% if @pagination[:page] < @pagination[:total_pages] %>
+        <%= link_to "Suivant", admin_reviews_path(query.merge(page: @pagination[:page] + 1)), class: "admin-pill-link" %>
+      <% end %>
+    </div>
+  </div>
+</div>

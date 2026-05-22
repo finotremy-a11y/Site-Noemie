@@ -1,0 +1,110 @@
+<% content_for :page_title, "Commandes" %>
+
+<div class="admin-card">
+  <div class="admin-section-title">
+    <h2>Liste des commandes</h2>
+    <div class="admin-actions">
+      <%= link_to "Export CSV", api_v1_admin_exports_orders_path(request.query_parameters), class: "admin-pill-link" %>
+      <%= link_to "Réinitialiser", admin_orders_path, class: "admin-pill-link" %>
+    </div>
+  </div>
+
+  <%= form_with url: bulk_status_admin_orders_path, method: :patch, local: true, id: "bulk-orders-form", class: "admin-form admin-form-grid", style: "margin-bottom:1rem;" do %>
+    <div class="admin-field">
+      <label>Action en masse</label>
+      <%= select_tag "bulk[status]", options_for_select([["Choisir un statut", ""]] + Order::STATUSES.map { |s| [s.humanize, s] }), class: "admin-input" %>
+    </div>
+    <div class="admin-actions">
+      <%= submit_tag "Appliquer aux commandes sélectionnées", class: "admin-btn" %>
+    </div>
+  <% end %>
+
+  <%= form_with url: admin_orders_path, method: :get, local: true, class: "admin-form admin-form-grid", style: "margin-bottom:1rem;" do %>
+    <div class="admin-field">
+      <label>Recherche</label>
+      <%= text_field_tag :q, @filters[:q], class: "admin-input", placeholder: "N° commande ou email client" %>
+    </div>
+    <div class="admin-field">
+      <label>Statut commande</label>
+      <%= select_tag :status, options_for_select([["Tous", ""]] + Order::STATUSES.map { |s| [s.humanize, s] }, @filters[:status]), class: "admin-input" %>
+    </div>
+    <div class="admin-field">
+      <label>Statut paiement</label>
+      <%= select_tag :payment_status, options_for_select([["Tous", ""]] + Order::PAYMENT_STATUSES.map { |s| [s.humanize, s] }, @filters[:payment_status]), class: "admin-input" %>
+    </div>
+    <div class="admin-field">
+      <label>Mode</label>
+      <%= select_tag :service_mode, options_for_select([["Tous", ""]] + Order::SERVICE_MODES.map { |s| [s.humanize, s] }, @filters[:service_mode]), class: "admin-input" %>
+    </div>
+    <div class="admin-field">
+      <label>Du</label>
+      <%= date_field_tag :date_from, @filters[:date_from], class: "admin-input" %>
+    </div>
+    <div class="admin-field">
+      <label>Au</label>
+      <%= date_field_tag :date_to, @filters[:date_to], class: "admin-input" %>
+    </div>
+    <div class="admin-actions">
+      <%= submit_tag "Filtrer", class: "admin-btn" %>
+    </div>
+  <% end %>
+
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th><%= link_to "Référence#{sort_indicator('order_number')}", admin_orders_path(sort_params_for('order_number')), class: "admin-pill-link" %></th>
+        <th>Client</th>
+        <th><%= link_to "Mode#{sort_indicator('service_mode')}", admin_orders_path(sort_params_for('service_mode')), class: "admin-pill-link" %></th>
+        <th><%= link_to "Paiement#{sort_indicator('payment_status')}", admin_orders_path(sort_params_for('payment_status')), class: "admin-pill-link" %></th>
+        <th><%= link_to "Total#{sort_indicator('total_cents')}", admin_orders_path(sort_params_for('total_cents')), class: "admin-pill-link" %></th>
+        <th><%= link_to "Créée#{sort_indicator('created_at')}", admin_orders_path(sort_params_for('created_at')), class: "admin-pill-link" %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @orders.each do |order| %>
+        <tr>
+          <td><%= check_box_tag "order_ids[]", order.id, false, form: "bulk-orders-form" %></td>
+          <td>
+            <strong><%= order.order_number %></strong>
+            <div><span class="status-chip <%= order.status %>"><%= order.status.humanize %></span></div>
+          </td>
+          <td><%= order.customer_email.presence || order.user&.email || "N/A" %></td>
+          <td><%= order.service_mode.humanize %></td>
+          <td><span class="status-chip <%= order.payment_status %>"><%= order.payment_status.humanize %></span></td>
+          <td><%= number_to_currency(order.total_cents / 100.0, unit: "€", format: "%n %u") %></td>
+          <td><%= l(order.created_at, format: :short) %></td>
+          <td>
+            <div class="admin-inline-actions">
+              <%= link_to "Ouvrir", admin_order_path(order), class: "admin-pill-link" %>
+              <% Order::ALLOWED_TRANSITIONS.fetch(order.status, []).each do |next_status| %>
+                <% next if next_status == "confirmed" && order.payment_status != "paid" %>
+                <%= button_to next_status.humanize,
+                              status_admin_order_path(order),
+                              method: :patch,
+                              params: { order: { status: next_status, reason: "Action rapide" } },
+                              class: "admin-pill-btn" %>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="admin-section-title" style="margin-top:1rem;">
+    <div class="admin-meta">
+      <%= @pagination[:total_count] %> résultat(s) · page <%= @pagination[:page] %>/<%= @pagination[:total_pages] %>
+    </div>
+    <div class="admin-actions">
+      <% query = request.query_parameters.except("page") %>
+      <% if @pagination[:page] > 1 %>
+        <%= link_to "Précédent", admin_orders_path(query.merge(page: @pagination[:page] - 1)), class: "admin-pill-link" %>
+      <% end %>
+      <% if @pagination[:page] < @pagination[:total_pages] %>
+        <%= link_to "Suivant", admin_orders_path(query.merge(page: @pagination[:page] + 1)), class: "admin-pill-link" %>
+      <% end %>
+    </div>
+  </div>
+</div>

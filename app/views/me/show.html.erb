@@ -1,0 +1,144 @@
+<div class="page-account">
+  <section class="section-header">
+    <h1>Mon Compte</h1>
+  </section>
+
+  <div class="account-container">
+    <aside class="account-menu">
+      <nav class="menu-nav">
+        <a href="<%= me_path %>" class="menu-item active">👤 Profil</a>
+        <a href="<%= me_orders_path %>" class="menu-item">📦 Mes commandes</a>
+        <a href="<%= me_addresses_path %>" class="menu-item">📍 Adresses</a>
+        <a href="<%= me_preferences_path %>" class="menu-item">⚙️ Préférences</a>
+        <a href="<%= me_invoices_path %>" class="menu-item">📄 Factures</a>
+        <hr>
+        <%= link_to "Déconnexion", logout_path, data: { turbo_method: :post }, class: "menu-item menu-danger" %>
+      </nav>
+    </aside>
+
+    <div class="account-main">
+      <!-- Infos profil -->
+      <div class="account-card">
+        <div class="card-header">
+          <h3>Mes informations</h3>
+          <%= link_to "Modifier", edit_me_path, class: "edit-link" %>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Email</span>
+            <span class="value"><%= @user.email %></span>
+          </div>
+
+          <% if @user.first_name || @user.last_name %>
+            <div class="info-item">
+              <span class="label">Nom complet</span>
+              <span class="value"><%= [@user.first_name, @user.last_name].compact.join(" ") %></span>
+            </div>
+          <% end %>
+
+          <% if @user.phone %>
+            <div class="info-item">
+              <span class="label">Téléphone</span>
+              <span class="value"><%= @user.phone %></span>
+            </div>
+          <% end %>
+
+          <div class="info-item">
+            <span class="label">Compte créé</span>
+            <span class="value"><%= l(@user.created_at, format: :long) %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Commandes récentes -->
+      <% if @recent_orders.any? %>
+        <div class="account-card">
+          <div class="card-header">
+            <h3>Mes dernières commandes</h3>
+            <%= link_to "Voir toutes", me_orders_path, class: "view-link" %>
+          </div>
+
+          <div class="orders-list">
+            <% @recent_orders.each do |order| %>
+              <div class="order-item">
+                <div class="order-info">
+                  <strong>Commande #<%= order.id %></strong>
+                  <span class="order-date"><%= l(order.created_at, format: :short) %></span>
+                </div>
+
+                <div class="order-details">
+                  <span class="order-total"><%= number_to_currency(order.total_cents / 100.0, unit: "€", format: "%n %u") %></span>
+                  <span class="order-status status-<%= order.status %>">
+                    <%= t("activerecord.attributes.order.statuses.#{order.status}", default: order.status) %>
+                  </span>
+                </div>
+
+                <%= link_to "Voir", me_order_path(order), class: "btn-small" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Adresses enregistrées -->
+      <div class="account-card">
+        <div class="card-header">
+          <h3>Adresses enregistrées</h3>
+          <%= link_to "+ Ajouter", me_new_address_path, class: "btn-small" %>
+        </div>
+
+        <% if @addresses.any? %>
+          <div class="addresses-list">
+            <% @addresses.each do |address| %>
+              <div class="address-item">
+                <span class="address-text">
+                  <%= address.street %><br>
+                  <strong><%= address.postal_code %> <%= address.city %></strong>
+                </span>
+                <% if address.is_default? %>
+                  <span class="badge badge-default">Par défaut</span>
+                <% end %>
+                <div class="address-actions">
+                  <%= link_to "Modifier", me_edit_address_path(address), class: "btn-small" %>
+                  <%= link_to "Supprimer", me_delete_address_path(address), data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr ?" }, class: "btn-small btn-danger" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="empty-state">Aucune adresse enregistrée</p>
+        <% end %>
+      </div>
+
+      <div class="account-card">
+        <div class="card-header">
+          <h3>Factures récentes</h3>
+          <%= link_to "Voir toutes", me_invoices_path, class: "view-link" %>
+        </div>
+
+        <% if @recent_invoices.any? %>
+          <div class="orders-list">
+            <% @recent_invoices.each do |invoice| %>
+              <div class="order-item">
+                <div class="order-info">
+                  <strong><%= invoice.invoice_number %></strong>
+                  <span class="order-date"><%= l(invoice.issued_at || invoice.created_at, format: :short) %></span>
+                </div>
+
+                <div class="order-details">
+                  <span class="order-total"><%= number_to_currency(invoice.total_cents / 100.0, unit: "€", format: "%n %u") %></span>
+                  <span class="order-status status-<%= invoice.status %>"><%= invoice.status.humanize %></span>
+                </div>
+
+                <%= link_to "Voir", me_invoice_path(invoice), class: "btn-small" %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="empty-state">Aucune facture disponible pour le moment</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

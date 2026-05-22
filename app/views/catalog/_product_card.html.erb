@@ -1,0 +1,41 @@
+<article class="product-card">
+  <%= link_to "", product_path(product), class: "product-card-link", "aria-label": "Voir les details de #{product.name}" %>
+
+  <div class="product-image">
+    <% if product.image_url %>
+      <img src="<%= product.image_url %>" alt="<%= product.name %>" loading="lazy">
+    <% else %>
+      <div class="image-placeholder">📷</div>
+    <% end %>
+    <% if product.available? %>
+      <span class="badge badge-available">Disponible</span>
+    <% else %>
+      <span class="badge badge-unavailable">Non disponible</span>
+    <% end %>
+  </div>
+
+  <div class="product-info">
+    <h3><%= product.name %></h3>
+    <p class="product-description"><%= truncate(product.description, length: 60) %></p>
+    
+    <% if product.category %>
+      <span class="category-tag"><%= product.category.name %></span>
+    <% end %>
+
+    <% if product.options? %>
+      <span class="options-indicator">Avec options</span>
+    <% end %>
+  </div>
+
+  <div class="product-footer">
+    <div class="price">
+      <span class="currency">€</span><span class="amount"><%= number_with_precision(product.price, precision: 2) %></span>
+    </div>
+
+    <% if product.available? %>
+      <%= link_to "Voir details", product_path(product), class: "btn-primary btn-add-to-cart" %>
+    <% else %>
+      <%= link_to "Voir details", product_path(product), class: "btn-secondary btn-add-to-cart" %>
+    <% end %>
+  </div>
+</article>

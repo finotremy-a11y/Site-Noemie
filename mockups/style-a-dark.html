@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maquette A — Dark Premium</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #111; color: #f0ece4; }
+
+    /* ── NAV ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 64px;
+      background: rgba(17,17,17,.95); border-bottom: 1px solid #2a2a2a;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; color: #f5a623; }
+    .logo span { color: #f0ece4; }
+    nav ul { list-style: none; display: flex; gap: 28px; }
+    nav ul li a { color: #aaa; text-decoration: none; font-size: .9rem; transition: color .2s; }
+    nav ul li a:hover { color: #f5a623; }
+    .nav-actions { display: flex; gap: 12px; align-items: center; }
+    .btn-outline { padding: 8px 18px; border: 1px solid #444; border-radius: 6px; background: transparent; color: #f0ece4; font-size: .85rem; cursor: pointer; }
+    .btn-primary { padding: 8px 20px; border: none; border-radius: 6px; background: #f5a623; color: #111; font-size: .85rem; font-weight: 700; cursor: pointer; }
+    .cart-icon { position: relative; cursor: pointer; }
+    .cart-badge { position: absolute; top: -6px; right: -6px; background: #f5a623; color: #111; font-size: .65rem; font-weight: 800; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 92vh; display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center; padding: 0 80px; gap: 60px;
+      background: radial-gradient(ellipse at 70% 50%, #1e1200 0%, #111 60%);
+    }
+    .hero-text h1 { font-size: 3.8rem; font-weight: 900; line-height: 1.05; letter-spacing: -2px; }
+    .hero-text h1 em { color: #f5a623; font-style: normal; display: block; }
+    .hero-text p { margin: 20px 0 32px; color: #888; font-size: 1.1rem; line-height: 1.7; max-width: 420px; }
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+    .cta-main { padding: 16px 36px; background: #f5a623; color: #111; border: none; border-radius: 8px; font-size: 1rem; font-weight: 800; cursor: pointer; letter-spacing: .3px; }
+    .cta-secondary { padding: 16px 36px; background: transparent; color: #f0ece4; border: 1.5px solid #444; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    .hero-badges { display: flex; gap: 12px; margin-top: 28px; }
+    .badge { padding: 6px 14px; border: 1px solid #2a2a2a; border-radius: 20px; font-size: .78rem; color: #888; }
+    .hero-visual {
+      aspect-ratio: 1; max-width: 480px; border-radius: 50%;
+      background: radial-gradient(circle, #2a1500 0%, #1a0e00 60%, transparent 80%);
+      border: 2px solid #2a2a2a; display: flex; align-items: center; justify-content: center;
+      font-size: 9rem; box-shadow: 0 0 80px #f5a62330;
+    }
+
+    /* ── STATUTS ── */
+    .status-bar {
+      background: #f5a623; color: #111; text-align: center;
+      padding: 10px; font-size: .85rem; font-weight: 700;
+    }
+
+    /* ── SECTION TITRE ── */
+    .section { padding: 80px 80px; }
+    .section-title { font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+    .section-title span { color: #f5a623; }
+    .section-subtitle { color: #666; font-size: .95rem; margin-bottom: 40px; }
+
+    /* ── PRODUITS PHARES ── */
+    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .product-card {
+      background: #181818; border: 1px solid #222; border-radius: 16px;
+      overflow: hidden; transition: transform .2s, border-color .2s;
+    }
+    .product-card:hover { transform: translateY(-4px); border-color: #f5a623; }
+    .product-img {
+      height: 200px; background: linear-gradient(135deg, #2a1500, #1a0e00);
+      display: flex; align-items: center; justify-content: center; font-size: 4rem;
+    }
+    .product-body { padding: 20px; }
+    .product-tags { display: flex; gap: 6px; margin-bottom: 10px; }
+    .tag { font-size: .7rem; padding: 3px 10px; border-radius: 20px; font-weight: 700; }
+    .tag-bestseller { background: #f5a62320; color: #f5a623; }
+    .tag-new { background: #22c55e20; color: #22c55e; }
+    .tag-spicy { background: #ef444420; color: #ef4444; }
+    .product-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+    .product-desc { font-size: .82rem; color: #666; margin-bottom: 14px; line-height: 1.5; }
+    .product-footer { display: flex; align-items: center; justify-content: space-between; }
+    .product-price { font-size: 1.3rem; font-weight: 800; color: #f5a623; }
+    .add-btn { padding: 8px 18px; background: #f5a623; color: #111; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: .85rem; }
+
+    /* ── INFOS PRATIQUES ── */
+    .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .info-card {
+      background: #181818; border: 1px solid #222; border-radius: 16px; padding: 28px;
+    }
+    .info-icon { font-size: 2rem; margin-bottom: 14px; }
+    .info-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .info-content { font-size: .85rem; color: #777; line-height: 1.8; }
+
+    /* ── AVIS ── */
+    .avis-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .avis-card {
+      background: #181818; border: 1px solid #222; border-radius: 16px; padding: 24px;
+    }
+    .avis-stars { color: #f5a623; font-size: 1.1rem; margin-bottom: 10px; }
+    .avis-text { font-size: .88rem; color: #aaa; line-height: 1.6; margin-bottom: 14px; font-style: italic; }
+    .avis-author { font-size: .8rem; color: #555; font-weight: 600; }
+    .rating-summary { display: flex; align-items: center; gap: 16px; margin-bottom: 40px; }
+    .rating-big { font-size: 4rem; font-weight: 900; color: #f5a623; line-height: 1; }
+    .rating-info small { display: block; color: #555; font-size: .82rem; }
+
+    /* ── CTA DEVIS ── */
+    .cta-event {
+      background: linear-gradient(135deg, #1e1200, #2a1500); border: 1px solid #3a2000;
+      border-radius: 20px; padding: 60px; text-align: center;
+    }
+    .cta-event h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; }
+    .cta-event p { color: #888; margin-bottom: 28px; }
+    .cta-event .cta-main { font-size: .95rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #0d0d0d; border-top: 1px solid #1a1a1a;
+      padding: 40px 80px; display: flex; justify-content: space-between; align-items: center;
+    }
+    footer .footer-logo { font-size: 1.2rem; font-weight: 800; color: #f5a623; }
+    footer nav ul { display: flex; gap: 24px; }
+    footer nav ul li a { color: #555; font-size: .82rem; text-decoration: none; }
+    footer small { color: #333; font-size: .78rem; }
+
+    /* ── LABEL STYLE ── */
+    .style-label {
+      position: fixed; bottom: 20px; right: 20px;
+      background: #f5a623; color: #111; padding: 10px 18px;
+      border-radius: 8px; font-weight: 800; font-size: .85rem; z-index: 200;
+      box-shadow: 0 4px 20px #f5a62350;
+    }
+  </style>
+</head>
+<body>
+
+<div class="style-label">Style A — Dark Premium</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar">🟢 Ouvert aujourd'hui · Commandes jusqu'à 20h30 · Livraison dès 12h00</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Nömi<span>'s</span></div>
+  <ul>
+    <li><a href="#">Carte</a></li>
+    <li><a href="#">Commander</a></li>
+    <li><a href="#">Événements</a></li>
+    <li><a href="#">Avis</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-outline">Connexion</button>
+    <div class="cart-icon">
+      🛒
+      <span class="cart-badge">2</span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text">
+    <h1>Des burgers<br><em>qui changent tout.</em></h1>
+    <p>Préparés à la minute, avec des produits frais sourcés localement. Venez ou faites-vous livrer — on s'occupe du reste.</p>
+    <div class="hero-ctas">
+      <button class="cta-main">Commander maintenant</button>
+      <button class="cta-secondary">Voir la carte →</button>
+    </div>
+    <div class="hero-badges">
+      <span class="badge">🥩 Viande fraîche</span>
+      <span class="badge">🌿 Produits locaux</span>
+      <span class="badge">⚡ Prêt en 15 min</span>
+    </div>
+  </div>
+  <div class="hero-visual">🍔</div>
+</section>
+
+<!-- PRODUITS PHARES -->
+<section class="section">
+  <div class="section-title">Nos <span>signatures</span></div>
+  <div class="section-subtitle">Les incontournables de la carte</div>
+  <div class="products-grid">
+    <div class="product-card">
+      <div class="product-img">🍔</div>
+      <div class="product-body">
+        <div class="product-tags">
+          <span class="tag tag-bestseller">⭐ Best-seller</span>
+          <span class="tag tag-spicy">🌶 Épicé</span>
+        </div>
+        <div class="product-name">The Classic Nömi</div>
+        <div class="product-desc">Bœuf charolais, cheddar affiné, oignons confits, sauce maison</div>
+        <div class="product-footer">
+          <span class="product-price">12,90 €</span>
+          <button class="add-btn">+ Ajouter</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-card">
+      <div class="product-img">🥦</div>
+      <div class="product-body">
+        <div class="product-tags">
+          <span class="tag tag-new">🌱 Nouveauté</span>
+        </div>
+        <div class="product-name">Le Green Beast</div>
+        <div class="product-desc">Steak de champignons, guacamole, pickles, brioche végane</div>
+        <div class="product-footer">
+          <span class="product-price">13,50 €</span>
+          <button class="add-btn">+ Ajouter</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-card">
+      <div class="product-img">🔥</div>
+      <div class="product-body">
+        <div class="product-tags">
+          <span class="tag tag-spicy">🌶🌶 Intense</span>
+        </div>
+        <div class="product-name">Double Inferno</div>
+        <div class="product-desc">Double steak, jalapeños, sauce sriracha, bacon croustillant</div>
+        <div class="product-footer">
+          <span class="product-price">15,90 €</span>
+          <button class="add-btn">+ Ajouter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INFOS PRATIQUES -->
+<section class="section" style="padding-top: 0;">
+  <div class="section-title">Où & <span>quand</span></div>
+  <div class="section-subtitle">Retrouvez-nous ou faites-vous livrer</div>
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-icon">📍</div>
+      <div class="info-title">Click & Collect</div>
+      <div class="info-content">
+        Place du Marché, 69001 Lyon<br>
+        Lun–Ven : 11h30 – 14h30<br>
+        Ven–Sam : 18h00 – 22h00
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">🛵</div>
+      <div class="info-title">Livraison</div>
+      <div class="info-content">
+        Rayon de 5 km autour du food truck<br>
+        Délai estimé : 25–40 min<br>
+        Frais : 2,90 € (offerts dès 30 €)
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">🎪</div>
+      <div class="info-title">Événements privés</div>
+      <div class="info-content">
+        Mariage, soirée entreprise, festival<br>
+        Devis personnalisé sous 48h<br>
+        <span style="color:#f5a623; font-weight:700;">→ Demander un devis</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AVIS -->
+<section class="section" style="padding-top: 0;">
+  <div class="section-title">Ce qu'ils en <span>pensent</span></div>
+  <div class="rating-summary">
+    <div class="rating-big">4,9</div>
+    <div class="rating-info">
+      <div style="color:#f5a623; font-size:1.4rem;">★★★★★</div>
+      <small>Basé sur 247 avis</small>
+    </div>
+  </div>
+  <div class="avis-grid">
+    <div class="avis-card">
+      <div class="avis-stars">★★★★★</div>
+      <div class="avis-text">"Le meilleur burger que j'ai mangé à Lyon. Les oignons confits sont incroyables !"</div>
+      <div class="avis-author">— Marie L. · Avis vérifié</div>
+    </div>
+    <div class="avis-card">
+      <div class="avis-stars">★★★★★</div>
+      <div class="avis-text">"Commande en 3 clics, livré en 25 min, encore chaud. Parfait pour une pause déjeuner."</div>
+      <div class="avis-author">— Thomas R. · Avis vérifié</div>
+    </div>
+    <div class="avis-card">
+      <div class="avis-stars">★★★★☆</div>
+      <div class="avis-text">"On a commandé pour tout le bureau, tout le monde a adoré. Le Double Inferno, c'est du sérieux."</div>
+      <div class="avis-author">— Claire M. · Avis vérifié</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA ÉVÉNEMENT -->
+<section class="section" style="padding-top: 0;">
+  <div class="cta-event">
+    <h2>Un événement à organiser ? 🎉</h2>
+    <p>Mariages, soirées d'entreprise, festivals — on se déplace et on régale tout le monde.</p>
+    <button class="cta-main">Demander un devis gratuit</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Nömi's Burgers</div>
+  <nav><ul>
+    <li><a href="#">Contact</a></li>
+    <li><a href="#">CGV</a></li>
+    <li><a href="#">Confidentialité</a></li>
+    <li><a href="#">Mentions légales</a></li>
+  </ul></nav>
+  <small>© 2026 Nömi's Burgers</small>
+</footer>
+
+</body>
+</html>

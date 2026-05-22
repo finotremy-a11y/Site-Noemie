@@ -1,0 +1,73 @@
+<% content_for :page_title, "Factures" %>
+
+<div class="admin-card">
+  <div class="admin-section-title">
+    <h2>Factures émises</h2>
+    <div class="admin-actions">
+      <%= link_to "Export CSV", api_v1_admin_exports_invoices_path(request.query_parameters), class: "admin-pill-link" %>
+      <%= link_to "Réinitialiser", admin_invoices_path, class: "admin-pill-link" %>
+    </div>
+  </div>
+
+  <%= form_with url: admin_invoices_path, method: :get, local: true, class: "admin-form admin-form-grid", style: "margin-bottom:1rem;" do %>
+    <div class="admin-field">
+      <label>Recherche</label>
+      <%= text_field_tag :q, @filters[:q], class: "admin-input", placeholder: "N° facture ou N° commande" %>
+    </div>
+    <div class="admin-field">
+      <label>Statut</label>
+      <%= select_tag :status, options_for_select([["Tous", ""]] + Invoice::STATUSES.map { |s| [s.humanize, s] }, @filters[:status]), class: "admin-input" %>
+    </div>
+    <div class="admin-field">
+      <label>Du</label>
+      <%= date_field_tag :date_from, @filters[:date_from], class: "admin-input" %>
+    </div>
+    <div class="admin-field">
+      <label>Au</label>
+      <%= date_field_tag :date_to, @filters[:date_to], class: "admin-input" %>
+    </div>
+    <div class="admin-actions">
+      <%= submit_tag "Filtrer", class: "admin-btn" %>
+    </div>
+  <% end %>
+
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th><%= link_to "Numéro#{sort_indicator('invoice_number')}", admin_invoices_path(sort_params_for('invoice_number')), class: "admin-pill-link" %></th>
+        <th>Commande</th>
+        <th><%= link_to "Montant#{sort_indicator('total_cents')}", admin_invoices_path(sort_params_for('total_cents')), class: "admin-pill-link" %></th>
+        <th><%= link_to "Statut#{sort_indicator('status')}", admin_invoices_path(sort_params_for('status')), class: "admin-pill-link" %></th>
+        <th><%= link_to "Émission#{sort_indicator('issued_at')}", admin_invoices_path(sort_params_for('issued_at')), class: "admin-pill-link" %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @invoices.each do |invoice| %>
+        <tr>
+          <td><strong><%= invoice.invoice_number %></strong></td>
+          <td><%= invoice.order&.order_number || "-" %></td>
+          <td><%= number_to_currency(invoice.total_cents / 100.0, unit: "€", format: "%n %u") %></td>
+          <td><span class="status-chip <%= invoice.status %>"><%= invoice.status.humanize %></span></td>
+          <td><%= l(invoice.issued_at || invoice.created_at, format: :short) %></td>
+          <td><%= link_to "Voir", admin_invoice_path(invoice), class: "admin-pill-link" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="admin-section-title" style="margin-top:1rem;">
+    <div class="admin-meta">
+      <%= @pagination[:total_count] %> résultat(s) · page <%= @pagination[:page] %>/<%= @pagination[:total_pages] %>
+    </div>
+    <div class="admin-actions">
+      <% query = request.query_parameters.except("page") %>
+      <% if @pagination[:page] > 1 %>
+        <%= link_to "Précédent", admin_invoices_path(query.merge(page: @pagination[:page] - 1)), class: "admin-pill-link" %>
+      <% end %>
+      <% if @pagination[:page] < @pagination[:total_pages] %>
+        <%= link_to "Suivant", admin_invoices_path(query.merge(page: @pagination[:page] + 1)), class: "admin-pill-link" %>
+      <% end %>
+    </div>
+  </div>
+</div>

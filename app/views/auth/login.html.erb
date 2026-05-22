@@ -1,0 +1,45 @@
+<div class="page-auth">
+  <div class="auth-container">
+    <div class="auth-card">
+      <h1>Connexion</h1>
+      <p class="auth-subtitle">Accédez à votre compte N&L Cuisinent</p>
+
+      <%= form_with url: auth_login_path, local: true, method: :post, class: "auth-form" do |f| %>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <%= f.email_field :email, required: true, placeholder: "vous@exemple.fr" %>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <%= f.password_field :password, required: true, placeholder: "••••••••" %>
+        </div>
+
+        <button type="submit" class="btn-primary btn-block">
+          Se connecter
+        </button>
+      <% end %>
+
+      <div class="auth-divider">ou</div>
+
+      <div class="auth-actions">
+        <p>Pas encore de compte?</p>
+        <%= link_to "Créer un compte", register_path, class: "btn-secondary btn-block" %>
+      </div>
+
+      <div class="auth-help">
+        <a href="#">Mot de passe oublié?</a>
+      </div>
+    </div>
+
+    <div class="auth-info">
+      <h2>Connectez-vous pour:</h2>
+      <ul>
+        <li>✓ Voir vos commandes</li>
+        <li>✓ Accéder à vos adresses enregistrées</li>
+        <li>✓ Recevoir vos factures</li>
+        <li>✓ Gérer vos préférences</li>
+      </ul>
+    </div>
+  </div>
+</div>

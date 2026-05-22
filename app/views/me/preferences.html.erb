@@ -1,0 +1,72 @@
+<div class="page-account">
+  <section class="section-header">
+    <h1>Préférences</h1>
+  </section>
+
+  <div class="account-container">
+    <aside class="account-menu">
+      <nav class="menu-nav">
+        <a href="<%= me_path %>" class="menu-item">👤 Profil</a>
+        <a href="<%= me_orders_path %>" class="menu-item">📦 Mes commandes</a>
+        <a href="<%= me_addresses_path %>" class="menu-item">📍 Adresses</a>
+        <a href="<%= me_preferences_path %>" class="menu-item active">⚙️ Préférences</a>
+        <a href="<%= me_invoices_path %>" class="menu-item">📄 Factures</a>
+        <hr>
+        <%= link_to "Déconnexion", logout_path, data: { turbo_method: :post }, class: "menu-item menu-danger" %>
+      </nav>
+    </aside>
+
+    <div class="account-main">
+      <div class="account-card">
+        <h3>Notifications et communications</h3>
+
+        <%= form_with url: me_update_preferences_path, method: :patch, class: "form-vertical" do |f| %>
+          <div class="pref-group">
+            <div class="pref-row">
+              <div class="pref-label">
+                <strong>Emails de commande</strong>
+                <span>Recevoir les confirmations et changements de statut de commande</span>
+              </div>
+              <label class="toggle">
+                <%= f.check_box :notifications_email_order,
+                    { checked: @preferences.notifications_email_order, name: "user_preference[notifications_email_order]" },
+                    "1", "0" %>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="pref-row">
+              <div class="pref-label">
+                <strong>Emails de devis</strong>
+                <span>Recevoir les réponses et mises à jour liées à vos demandes de devis</span>
+              </div>
+              <label class="toggle">
+                <%= f.check_box :notifications_email_quote,
+                    { checked: @preferences.notifications_email_quote, name: "user_preference[notifications_email_quote]" },
+                    "1", "0" %>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="pref-row">
+              <div class="pref-label">
+                <strong>Newsletter</strong>
+                <span>Recevoir nos actualités et offres spéciales par email</span>
+              </div>
+              <label class="toggle">
+                <%= f.check_box :notifications_email_promotional,
+                    { checked: @preferences.notifications_email_promotional, name: "user_preference[notifications_email_promotional]" },
+                    "1", "0" %>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <%= f.submit "Enregistrer les préférences", class: "btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
