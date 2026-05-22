@@ -22,7 +22,7 @@ class CatalogControllerTest < ActionDispatch::IntegrationTest
     get catalog_path, params: { category_id: @category.id, search: "Burger", max_price: 20, page: 2 }
 
     assert_response :success
-    assert_includes response.body, "13 produits"
+    assert_includes response.body, '<strong>13</strong> produit'
     assert_includes response.body, "category_id=#{@category.id}"
     assert_includes response.body, "search=Burger"
     assert_includes response.body, "max_price=20"
