@@ -1,7 +1,15 @@
+<% content_for :meta_description, "Découvrez la carte N&L Cuisinent, filtrez vos burgers premium et préparez votre commande en quelques clics." %>
+
 <div class="page-catalog" data-controller="catalog">
   <section class="catalog-header">
     <h1>Notre Carte</h1>
-    <p>Découvrez nos burgers premium et nos spécialités</p>
+    <p>Découvrez nos burgers premium, nos spécialités et les produits disponibles aujourd'hui.</p>
+    <p class="catalog-results">
+      <strong><%= @total_count %></strong> produit<%= "s" if @total_count.to_i > 1 %>
+      <% if params[:search].present? %>
+        pour "<%= params[:search] %>"
+      <% end %>
+    </p>
     <div class="catalog-header-actions">
       <a href="<%= cart_path %>" class="btn-primary">Voir mon panier</a>
       <a href="<%= checkout_path %>" class="btn-outline">Commander</a>
@@ -10,8 +18,8 @@
 
   <div class="catalog-container">
     <aside class="catalog-filters">
-      <h3>Filtres</h3>
-      
+      <h2>Filtres</h2>
+
       <div class="filter-group">
         <label for="filter-category">Catégorie</label>
         <select id="filter-category" data-catalog-target="categoryFilter" data-action="change->catalog#filterByCategory">
@@ -24,18 +32,18 @@
 
       <div class="filter-group">
         <label for="filter-search">Rechercher</label>
-        <input 
-          type="text" 
-          id="filter-search" 
+        <input
+          type="text"
+          id="filter-search"
           value="<%= params[:search].to_s %>"
-          placeholder="Burger, frites..." 
+          placeholder="Burger, frites..."
           data-catalog-target="searchFilter"
           data-action="change->catalog#filterBySearch keydown.enter->catalog#filterBySearch"
         >
       </div>
 
       <div class="filter-group">
-        <label for="filter-price">Gamme de prix</label>
+        <label for="filter-price">Budget maximum</label>
         <input type="range" id="filter-price" min="0" max="50" value="<%= (params[:max_price].presence || 50).to_i %>" data-catalog-target="priceFilter" data-action="input->catalog#filterByPrice">
         <span id="price-display">0€ - <%= (params[:max_price].presence || 50).to_i %>€</span>
       </div>
@@ -50,34 +58,38 @@
             <%= render "catalog/product_card", product: product %>
           <% end %>
         <% else %>
-          <div class="empty-state">
-            <p>Aucun produit disponible pour le moment.</p>
+          <div class="empty-state empty-state-rich">
+            <h2>Aucun produit ne correspond à vos filtres</h2>
+            <p>Essayez une autre catégorie, augmentez votre budget maximum ou réinitialisez les filtres pour retrouver toute la carte.</p>
+            <div class="form-actions">
+              <%= link_to "Réinitialiser les filtres", catalog_path, class: "btn-secondary" %>
+              <%= link_to "Nous contacter", contact_path, class: "btn-outline" %>
+            </div>
           </div>
         <% end %>
       </div>
 
       <% if @total_pages && @total_pages > 1 %>
-        <div class="pagination">
+        <nav class="pagination" aria-label="Pagination de la carte">
           <% if @page && @page > 1 %>
-            <a href="?page=1" class="btn-pagination">« Première</a>
-            <a href="?page=<%= @page - 1 %>" class="btn-pagination">‹ Précédente</a>
+            <a href="<%= catalog_path(request.query_parameters.merge(page: 1)) %>" class="btn-pagination">« Première</a>
+            <a href="<%= catalog_path(request.query_parameters.merge(page: @page - 1)) %>" class="btn-pagination">‹ Précédente</a>
           <% end %>
 
           <% (1..@total_pages).each do |p| %>
             <% if p == @page %>
-              <span class="pagination-current"><%= p %></span>
+              <span class="pagination-current" aria-current="page"><%= p %></span>
             <% else %>
-              <a href="?page=<%= p %>" class="btn-pagination"><%= p %></a>
+              <a href="<%= catalog_path(request.query_parameters.merge(page: p)) %>" class="btn-pagination"><%= p %></a>
             <% end %>
           <% end %>
 
           <% if @page && @page < @total_pages %>
-            <a href="?page=<%= @page + 1 %>" class="btn-pagination">Suivante ›</a>
-            <a href="?page=<%= @total_pages %>" class="btn-pagination">Dernière »</a>
+            <a href="<%= catalog_path(request.query_parameters.merge(page: @page + 1)) %>" class="btn-pagination">Suivante ›</a>
+            <a href="<%= catalog_path(request.query_parameters.merge(page: @total_pages)) %>" class="btn-pagination">Dernière »</a>
           <% end %>
-        </div>
+        </nav>
       <% end %>
     </div>
   </div>
 </div>
-

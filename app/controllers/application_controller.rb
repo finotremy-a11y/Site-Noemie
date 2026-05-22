@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
   # Changes to the importmap will invalidate the etag for HTML responses
   stale_when_importmap_changes
 
-  helper_method :current_user, :user_signed_in?
+  helper_method :current_user, :user_signed_in?, :current_cart, :current_cart_items_count
 
   before_action :set_current_user
 
@@ -26,6 +26,20 @@ class ApplicationController < ActionController::Base
 
   def user_signed_in?
     current_user.present?
+  end
+
+  def current_cart
+    return @current_cart if defined?(@current_cart)
+
+    @current_cart = if user_signed_in?
+      current_user.current_cart
+    elsif session[:cart_session_token]
+      Cart.find_by(session_token: session[:cart_session_token])
+    end
+  end
+
+  def current_cart_items_count
+    current_cart&.cart_items&.sum(:quantity).to_i
   end
 
   def authenticate_user!

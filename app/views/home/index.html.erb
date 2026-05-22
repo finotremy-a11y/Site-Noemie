@@ -1,27 +1,119 @@
+<% content_for :meta_description, "Des burgers premium faits maison, un parcours de commande rapide et des prestations événementielles sur mesure autour de Barbentane." %>
+
 <section class="hero hero-bleed hero-neon-frame <%= @hero_media_url.present? ? 'hero-with-media' : '' %> <%= @hero_media_mode == 'slider' ? 'hero-slider-mode' : 'hero-fixed-mode' %>"
   <% if @hero_media_url.present? %>style="--hero-media-url: url('<%= @hero_media_url %>')"<% end %>>
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <p class="eyebrow">Food truck premium</p>
     <h1>Des burgers qui changent tout.</h1>
-    <p class="hero-text">Produits frais, préparation minute, retrait ou livraison. Commandez en moins de 2 minutes depuis votre mobile.</p>
+    <p class="hero-text">Produits frais, préparation minute, retrait ou livraison. Commandez en moins de 2 minutes depuis votre mobile avec un parcours clair, rapide et rassurant.</p>
     <div class="hero-ctas">
       <a href="<%= checkout_path %>" class="cta-main">Commander maintenant</a>
       <a href="<%= catalog_path %>" class="cta-secondary">Voir la carte</a>
     </div>
     <div class="hero-proof">
-      <span class="hero-proof-item">Preparation immediate</span>
-      <span class="hero-proof-item">Paiement securise Stripe</span>
+      <span class="hero-proof-item">Préparation minute</span>
+      <span class="hero-proof-item">Paiement sécurisé Stripe</span>
       <span class="hero-proof-item">Retrait ou livraison</span>
+    </div>
+    <div class="hero-stats" aria-label="Indicateurs de confiance">
+      <div class="hero-stat">
+        <strong>4,9/5</strong>
+        <span>avis clients récents</span>
+      </div>
+      <div class="hero-stat">
+        <strong>&lt; 2 min</strong>
+        <span>pour lancer sa commande</span>
+      </div>
+      <div class="hero-stat">
+        <strong>Sur mesure</strong>
+        <span>pour vos événements privés</span>
+      </div>
     </div>
   </div>
 </section>
 
-<section id="events" class="section">
-  <h2>Événements & Prestations</h2>
-  <p>Anniversaires, entreprises, festivals ou privatisations: découvrez nos formules événementielles et demandez un devis en quelques minutes.</p>
-  <div class="hero-ctas events-ctas">
-    <a href="<%= contact_path %>" class="cta-main">Demander un devis</a>
-    <a href="<%= catalog_path %>" class="cta-secondary">Voir nos menus</a>
+<section class="section section-grid">
+  <div class="section-heading">
+    <p class="eyebrow">Pourquoi choisir N&amp;L</p>
+    <h2>Une expérience pensée pour aller vite, sans compromis sur le goût.</h2>
+    <p>Chaque étape a été simplifiée pour que vos clients trouvent, choisissent et commandent sans friction, tout en gardant un vrai niveau premium.</p>
+  </div>
+
+  <div class="feature-grid">
+    <article class="feature-card">
+      <h3>Carte lisible et rapide à parcourir</h3>
+      <p>Des produits clairs, des options visibles et un accès direct au panier pour décider sans hésiter.</p>
+    </article>
+    <article class="feature-card">
+      <h3>Commande rassurante jusqu'au paiement</h3>
+      <p>Résumé détaillé, modes de service compréhensibles et tarifs de livraison transparents avant validation.</p>
+    </article>
+    <article class="feature-card">
+      <h3>Adapté aux privatisations</h3>
+      <p>Anniversaires, entreprises, festivals ou mariages: le parcours contact et devis reste simple et actionnable.</p>
+    </article>
+  </div>
+</section>
+
+<section class="section section-grid">
+  <div class="section-heading">
+    <p class="eyebrow">Comment ça marche</p>
+    <h2>Un parcours client sans détour.</h2>
+  </div>
+
+  <div class="steps-grid">
+    <article class="step-card">
+      <span class="step-number">1</span>
+      <h3>Je choisis mes produits</h3>
+      <p>Je parcours la carte, j'ajoute mes burgers, options et instructions spéciales.</p>
+    </article>
+    <article class="step-card">
+      <span class="step-number">2</span>
+      <h3>Je sélectionne mon mode de service</h3>
+      <p>Retrait sur place ou livraison selon la distance, avec le total mis à jour immédiatement.</p>
+    </article>
+    <article class="step-card">
+      <span class="step-number">3</span>
+      <h3>Je confirme sereinement</h3>
+      <p>Je règle en ligne ou sur place, puis je retrouve ma commande et mes factures depuis mon compte.</p>
+    </article>
+  </div>
+</section>
+
+<section id="events" class="section section-split">
+  <div>
+    <p class="eyebrow">Événements &amp; prestations</p>
+    <h2>Événements privés, mariages, anniversaires ou entreprise.</h2>
+    <p>Nous adaptons la prestation à votre format: repas sur site, service fluide, menus personnalisés et réponse rapide pour cadrer votre demande.</p>
+    <div class="hero-ctas events-ctas">
+      <a href="<%= contact_path %>" class="cta-main">Demander un devis</a>
+      <a href="<%= catalog_path %>" class="cta-secondary">Voir nos menus</a>
+    </div>
+  </div>
+
+  <div class="events-grid">
+    <article class="event-card">
+      <h3>Formats flexibles</h3>
+      <p>Petit comité, gros volume ou événement récurrent: on ajuste le service et le rythme.</p>
+    </article>
+    <article class="event-card">
+      <h3>Réponse claire</h3>
+      <p>Un point de contact unique, un besoin bien cadré et un devis rapide pour avancer sereinement.</p>
+    </article>
+  </div>
+</section>
+
+<section class="section section-grid">
+  <div class="review-highlight">
+    <div>
+      <p class="eyebrow">Preuve sociale</p>
+      <h2>Une expérience qui se partage.</h2>
+      <p>Consultez les avis clients, préparez votre commande en quelques clics et revenez facilement quand l'envie frappe.</p>
+    </div>
+    <div class="hero-ctas">
+      <a href="<%= reviews_path %>" class="cta-secondary">Lire les avis</a>
+      <a href="<%= login_path %>" class="cta-main">Créer mon compte</a>
+    </div>
   </div>
 </section>

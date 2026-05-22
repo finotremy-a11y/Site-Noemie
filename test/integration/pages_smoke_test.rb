@@ -122,6 +122,14 @@ class PagesSmokeTest < ActionDispatch::IntegrationTest
       assert_single_global_chrome
     end
 
+    get root_path
+    assert_includes response.body, "Comment ça marche"
+    assert_includes response.body, "4,9/5"
+
+    get contact_path
+    assert_includes response.body, "nl.cuisinent@gmail.com"
+    assert_includes response.body, "1463 route d'avignon"
+
     get mentions_legales_path
     assert_includes response.body, "97920047400026"
     assert_includes response.body, "1463 route d'avignon"
@@ -134,7 +142,7 @@ class PagesSmokeTest < ActionDispatch::IntegrationTest
 
     get checkout_path
     assert_response :success
-    assert_includes response.body, "Se connecter pour commander"
+    assert_includes response.body, "Se connecter pour finaliser"
     assert_single_global_chrome
   end
 
