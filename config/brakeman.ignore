@@ -1,0 +1,18 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "Redirect",
+      "warning_code": 18,
+      "file": "app/controllers/checkout_controller.rb",
+      "note": "Intentional external redirect to Stripe checkout URL. allow_other_host: true is set explicitly. The URL comes from Stripe's API response, not from user input."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "file": "app/controllers/catalog_controller.rb",
+      "note": "False positive: LIKE pattern uses sanitize_sql_like and named bind parameter :q — no injection risk."
+    }
+  ],
+  "updated": "2026-04-10 00:00:00 +0000",
+  "brakeman_version": "7.0.0"
+}

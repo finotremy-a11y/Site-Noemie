@@ -18,10 +18,12 @@ class CatalogController < ApplicationController
     @products = @products.where(category_id: query_params[:category_id]) if query_params[:category_id]
 
     if query_params[:search]
+      # sanitize_sql_like escapes LIKE wildcards (%, _) in the search term;
+      # the value is passed as a named bind parameter — no SQL injection risk.
+      sanitized = ActiveRecord::Base.sanitize_sql_like(query_params[:search].to_s.downcase)
       @products = @products.where(
-        "LOWER(name) LIKE ? OR LOWER(description) LIKE ?",
-        "%#{query_params[:search].downcase}%",
-        "%#{query_params[:search].downcase}%"
+        "LOWER(name) LIKE :q OR LOWER(description) LIKE :q",
+        q: "%#{sanitized}%"
       )
     end
 
