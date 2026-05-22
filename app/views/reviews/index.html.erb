@@ -1,19 +1,18 @@
+<% content_for :meta_description, "Consultez les avis clients N&L Cuisinent et partagez votre expérience après commande." %>
+
 <div class="page-reviews" data-controller="reviews">
   <section class="section-header">
     <h1>Avis Clients</h1>
-    <p>Découvrez ce que pensent nos clients</p>
+    <p>Découvrez ce que pensent nos clients et pourquoi ils reviennent commander.</p>
   </section>
 
   <div class="reviews-container">
     <div class="reviews-main">
-      <!-- Statistiques -->
       <div class="reviews-stats">
         <div class="stat-card">
           <span class="stat-value"><%= @average_rating || "4.8" %>/5</span>
           <span class="stat-label">Note moyenne</span>
-          <div class="stars">
-            ⭐⭐⭐⭐⭐
-          </div>
+          <div class="stars">⭐⭐⭐⭐⭐</div>
         </div>
 
         <div class="stat-card">
@@ -22,17 +21,15 @@
         </div>
       </div>
 
-      <!-- Bouton ajouter avis (si connecté et a commandé) -->
       <% if current_user %>
         <%= link_to "+ Écrire un avis", new_review_path, class: "btn-primary btn-block" %>
       <% else %>
         <div class="auth-prompt">
-          <p>Vous a avez essayé N&L Cuisinent?</p>
+          <p>Vous avez déjà goûté N&amp;L Cuisinent ?</p>
           <%= link_to "Connectez-vous pour laisser un avis", login_path, class: "btn-secondary" %>
         </div>
       <% end %>
 
-      <!-- Liste des avis -->
       <div class="reviews-list">
         <% if @reviews&.any? %>
           <% @reviews.each do |review| %>
@@ -54,7 +51,7 @@
                   <%= link_to "Modifier", edit_review_path(review), class: "btn-small" %>
                   <%= link_to "Supprimer", review_path(review), data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr ?" }, class: "btn-small btn-danger" %>
                 <% end %>
-                
+
                 <button class="btn-small-outline" data-action="reviews#flagReview" data-review-id="<%= review.id %>">
                   🚩 Signaler
                 </button>
@@ -62,19 +59,24 @@
             </div>
           <% end %>
         <% else %>
-          <div class="empty-state">
-            <p>Aucun avis pour le moment.</p>
-            <p>Soyez le premier à laisser un avis!</p>
+          <div class="empty-state empty-state-rich">
+            <h2>Aucun avis pour le moment</h2>
+            <p>Soyez le premier à partager votre expérience et à rassurer les prochains clients.</p>
+            <div class="form-actions">
+              <% if current_user %>
+                <%= link_to "Laisser un avis", new_review_path, class: "btn-primary" %>
+              <% else %>
+                <%= link_to "Se connecter", login_path, class: "btn-primary" %>
+              <% end %>
+            </div>
           </div>
         <% end %>
       </div>
-
     </div>
 
-    <!-- Sidebar filtres/stats -->
     <aside class="reviews-sidebar">
-      <h3>Filtrer par</h3>
-      
+      <h2>Filtrer par</h2>
+
       <div class="filter-group">
         <label for="filter-rating">Note minimale</label>
         <select id="filter-rating" data-action="reviews#filterByRating">
@@ -87,7 +89,7 @@
       </div>
 
       <div class="breakdown">
-        <h4>Répartition</h4>
+        <h3>Répartition</h3>
         <% (5..1).each do |rating| %>
           <div class="breakdown-item">
             <span><%= "⭐" * rating %></span>

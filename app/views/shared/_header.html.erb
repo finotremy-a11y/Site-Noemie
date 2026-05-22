@@ -1,14 +1,16 @@
+<% cart_count = current_cart_items_count %>
+
 <header class="header">
   <div class="header-top">
     <div class="status-bar">
-      Ouvert aujourd'hui - Commandes jusqu'à 20h30 - Livraison dès 12h00
+      Burgers premium · Retrait & livraison autour de Barbentane · Commandes jusqu'à 20h30
     </div>
   </div>
 
-  <nav class="navbar">
+  <nav class="navbar" aria-label="Navigation principale">
     <div class="navbar-container" data-nav-root>
       <a href="<%= root_path %>" class="logo" aria-label="Retour à l'accueil">
-        <strong>N&L</strong> <span>Cuisinent</span>
+        <strong>N&amp;L</strong> <span>Cuisinent</span>
       </a>
 
       <button
@@ -25,14 +27,18 @@
 
       <div class="nav-panel" id="mobile-nav" data-nav-panel>
         <ul class="nav-menu">
-          <li><a href="<%= catalog_path %>">Carte</a></li>
-          <li><a href="<%= checkout_path %>">Commander</a></li>
-          <li><a href="<%= root_path(anchor: "events") %>">Événements</a></li>
-          <li><a href="<%= reviews_path %>">Avis</a></li>
-          <li><a href="<%= contact_path %>">Contact</a></li>
+          <li><%= link_to "Carte", catalog_path %></li>
+          <li><%= link_to "Commander", checkout_path %></li>
+          <li><%= link_to "Événements", root_path(anchor: "events") %></li>
+          <li><%= link_to "Avis", reviews_path %></li>
+          <li><%= link_to "Contact", contact_path %></li>
         </ul>
 
         <div class="nav-actions">
+          <a href="tel:+33634936801" class="nav-link nav-link-compact">
+            <span class="icon">☎</span> 06 34 93 68 01
+          </a>
+
           <% if current_user %>
             <a href="<%= me_path %>" class="nav-link">
               <span class="icon">👤</span> <%= current_user.email %>
@@ -43,9 +49,9 @@
             <%= link_to "Inscription", register_path, class: "btn-outline" %>
           <% end %>
 
-          <a href="<%= cart_path %>" class="btn-primary cart-toggle">
+          <a href="<%= cart_path %>" class="btn-primary cart-toggle" aria-label="Mon panier, <%= cart_count %> article<%= "s" unless cart_count == 1 %>">
             <span class="icon">🛒</span> Mon panier
-            <span class="cart-badge" id="cart-count" style="display: none;">0</span>
+            <span class="cart-badge" id="cart-count" <%= "hidden" if cart_count.zero? %>><%= cart_count %></span>
           </a>
         </div>
       </div>

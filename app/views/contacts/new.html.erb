@@ -1,79 +1,82 @@
+<% content_for :meta_description, "Contactez N&L Cuisinent pour une question, un devis événementiel ou une demande professionnelle autour de Barbentane." %>
+
 <div class="page-contact">
   <section class="section-header">
-    <h1>Nous Contacter</h1>
-    <p>Une question? Une demande de devis? Contactez-nous!</p>
+    <h1>Nous contacter</h1>
+    <p>Une question, une demande de devis ou un besoin professionnel ? Nous revenons vers vous rapidement.</p>
   </section>
 
   <div class="contact-container">
     <div class="contact-form-section">
       <h2>Formulaire de contact</h2>
+      <p class="contact-kicker">Réponse sous 24h ouvrées pour les demandes de devis et les messages liés à un événement.</p>
 
-      <%= form_with url: contacts_path, local: true, method: :post, class: "contact-form" do |f| %>
+      <%= form_with model: @contact, url: contacts_path, local: true, method: :post, class: "contact-form" do |f| %>
         <div class="form-row">
           <div class="form-group">
-            <label for="name">Nom *</label>
+            <%= f.label :name, "Nom *" %>
             <%= f.text_field :name, required: true, placeholder: "Votre nom" %>
           </div>
 
           <div class="form-group">
-            <label for="email">Email *</label>
+            <%= f.label :email, "Email *" %>
             <%= f.email_field :email, required: true, placeholder: "votre@email.fr" %>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="phone">Téléphone (optionnel)</label>
+          <%= f.label :phone, "Téléphone (optionnel)" %>
           <%= f.telephone_field :phone, placeholder: "06 34 93 68 01" %>
         </div>
 
         <div class="form-group">
-          <label for="subject">Sujet *</label>
-          <%= f.select :subject, %w[Autre Question Réclamation Partenariat Événement], { prompt: "Sélectionnez un sujet" }, { required: true } %>
+          <%= f.label :subject, "Sujet *" %>
+          <%= f.select :subject, ["Question", "Réclamation", "Partenariat", "Événement", "Autre"], { prompt: "Sélectionnez un sujet" }, { required: true } %>
         </div>
 
         <div class="form-group">
-          <label for="message">Message *</label>
-          <%= f.text_area :message, required: true, rows: 6, placeholder: "Votre message..." %>
+          <%= f.label :message, "Message *" %>
+          <%= f.text_area :message, required: true, rows: 6, placeholder: "Décrivez votre besoin ou votre question..." %>
         </div>
 
         <button type="submit" class="btn-primary btn-block">
-          Envoyer
+          Envoyer ma demande
         </button>
       <% end %>
     </div>
 
     <aside class="contact-info-section">
-      <div class="info-card">
-        <h3>📞 Par téléphone</h3>
-        <p>
-          <strong>06 34 93 68 01</strong><br>
-          <small>Lun - Dim: 12h00 - 21h00</small>
-        </p>
-      </div>
+      <div class="contact-highlights">
+        <div class="info-card">
+          <h3>📞 Par téléphone</h3>
+          <p>
+            <a href="tel:+33634936801"><strong>06 34 93 68 01</strong></a><br>
+            <small>Lun - Dim: 11h30 - 22h00 selon service</small>
+          </p>
+        </div>
 
-      <div class="info-card">
-        <h3>📧 Par email</h3>
-        <p>
-          <a href="mailto:contact@nlcuisinent.fr">contact@nlcuisinent.fr</a>
-        </p>
-      </div>
+        <div class="info-card">
+          <h3>📧 Par email</h3>
+          <p>
+            <a href="mailto:nl.cuisinent@gmail.com">nl.cuisinent@gmail.com</a>
+          </p>
+        </div>
 
-      <div class="info-card">
-        <h3>🚗 Où nous trouver</h3>
-        <p>
-          N&L Cuisinent<br>
-          Food Truck<br>
-          Paris, France
-        </p>
-      </div>
+        <div class="info-card">
+          <h3>📍 Où nous trouver</h3>
+          <p>
+            N&amp;L Cuisinent<br>
+            1463 route d'avignon<br>
+            13570 Barbentane
+          </p>
+        </div>
 
-      <div class="info-card">
-        <h3>⏰ Horaires</h3>
-        <p>
-          <strong>Lun - Jeu:</strong> 11h30 - 20h30<br>
-          <strong>Ven - Sam:</strong> 11h30 - 22h00<br>
-          <strong>Dimanche:</strong> 12h00 - 20h00
-        </p>
+        <div class="info-card">
+          <h3>🎉 Événements &amp; privatisation</h3>
+          <p>
+            Anniversaires, entreprises, festivals ou événements privés: décrivez votre besoin et nous vous orientons rapidement.
+          </p>
+        </div>
       </div>
     </aside>
   </div>

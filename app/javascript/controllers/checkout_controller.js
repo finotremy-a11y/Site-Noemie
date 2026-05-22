@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["subtotal", "deliveryFee", "grandTotal", "vatAmount", "distanceKm"]
+  static targets = ["subtotal", "deliveryFee", "grandTotal", "vatAmount", "distanceKm", "deliveryStatus"]
 
   static values = {
     tierOneMaxKm: Number,
@@ -20,7 +20,7 @@ export default class extends Controller {
     this.updateGrandTotal()
   }
 
-  selectDeliveryMode(event) {
+  selectDeliveryMode() {
     this.updateGrandTotal()
   }
 
@@ -40,6 +40,28 @@ export default class extends Controller {
     const submitButton = this.element.querySelector('button[type="submit"]')
 
     if (!submitButton) return
+
+    if (this.hasDistanceKmTarget) {
+      this.distanceKmTarget.disabled = mode !== "delivery"
+    }
+
+    if (this.hasDeliveryStatusTarget) {
+      this.deliveryStatusTarget.classList.remove("is-muted", "is-warning", "is-success")
+
+      if (mode !== "delivery") {
+        this.deliveryStatusTarget.textContent = "Retrait sur place gratuit, prêt en 15 à 20 minutes."
+        this.deliveryStatusTarget.classList.add("is-success")
+      } else if (distanceKm > this.tierTwoMaxKmValue) {
+        this.deliveryStatusTarget.textContent = `Livraison indisponible au-delà de ${this.tierTwoMaxKmValue} km. Passez en retrait sur place pour continuer.`
+        this.deliveryStatusTarget.classList.add("is-warning")
+      } else if (distanceKm > this.tierOneMaxKmValue) {
+        this.deliveryStatusTarget.textContent = `Vous êtes dans la zone étendue: frais de livraison majorés jusqu'à ${this.tierTwoMaxKmValue} km.`
+        this.deliveryStatusTarget.classList.add("is-muted")
+      } else {
+        this.deliveryStatusTarget.textContent = `Vous êtes dans la zone standard: livraison disponible jusqu'à ${this.tierOneMaxKmValue} km.`
+        this.deliveryStatusTarget.classList.add("is-success")
+      }
+    }
 
     if (mode === "delivery" && distanceKm > this.tierTwoMaxKmValue) {
       submitButton.disabled = true
@@ -64,14 +86,23 @@ export default class extends Controller {
     const mode = this.selectedDeliveryMode()
     const distanceKm = this.hasDistanceKmTarget ? parseFloat(this.distanceKmTarget.value || "0") : 0
     const deliveryFee = this.deliveryFeeFor(mode, distanceKm)
-    const safeDeliveryFee = deliveryFee === null ? 0 : deliveryFee
-
-    this.deliveryFeeTarget.textContent = this.formatCurrency(safeDeliveryFee)
-
     const subtotal = this.parseAmount(this.subtotalTarget.textContent)
-    const vat = (subtotal + safeDeliveryFee) * this.vatRateValue
-    const total = subtotal + safeDeliveryFee + vat
 
+    if (deliveryFee === null) {
+      const vat = subtotal * this.vatRateValue
+      const total = subtotal + vat
+
+      this.deliveryFeeTarget.textContent = "Indisponible"
+      this.vatAmountTarget.textContent = this.formatCurrency(vat)
+      this.grandTotalTarget.textContent = this.formatCurrency(total)
+      this.updateDeliveryAvailability(mode, distanceKm)
+      return
+    }
+
+    const vat = (subtotal + deliveryFee) * this.vatRateValue
+    const total = subtotal + deliveryFee + vat
+
+    this.deliveryFeeTarget.textContent = this.formatCurrency(deliveryFee)
     this.vatAmountTarget.textContent = this.formatCurrency(vat)
     this.grandTotalTarget.textContent = this.formatCurrency(total)
     this.updateDeliveryAvailability(mode, distanceKm)

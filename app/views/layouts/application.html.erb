@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <% meta_description = content_for(:meta_description) || "Commandez vos burgers premium N&L Cuisinent en ligne, en retrait ou en livraison autour de Barbentane." %>
     <title><%= content_for(:title) || "N&L Cuisinent" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="<%= meta_description %>">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="N&L Cuisinent">
     <meta name="mobile-web-app-capable" content="yes">
@@ -18,31 +20,34 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag :app, "ui_polish", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
+    <a class="skip-link" href="#main-content">Aller au contenu principal</a>
+
     <div id="app">
       <%= render "shared/header" %>
-      
-      <main class="main-content">
-        <% if notice %>
-          <div class="alert alert-success" role="alert">
-            <%= notice %>
-          </div>
-        <% end %>
-        
-        <% if alert %>
-          <div class="alert alert-error" role="alert">
-            <%= alert %>
-          </div>
-        <% end %>
-        
+
+      <main id="main-content" class="main-content" tabindex="-1">
+        <div class="flash-stack" aria-live="polite" aria-atomic="true">
+          <% if notice %>
+            <div class="alert alert-success" role="alert">
+              <%= notice %>
+            </div>
+          <% end %>
+
+          <% if alert %>
+            <div class="alert alert-error" role="alert">
+              <%= alert %>
+            </div>
+          <% end %>
+        </div>
+
         <%= yield %>
       </main>
-      
+
       <%= render "shared/footer" %>
     </div>
   </body>
